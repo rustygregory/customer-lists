@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "zendesk-globalnav-template": "file:./vendor/zendesk-globalnav-template",
     "@zendeskgarden/react-avatars": "^9.15.4",
     "@zendeskgarden/react-buttons": "^9.15.4",
     "@zendeskgarden/react-forms": "^9.15.4",

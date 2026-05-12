@@ -1,0 +1,93 @@
+{
+  "name": "zendesk-globalnav-template",
+  "version": "0.1.1",
+  "description": "Zendesk GlobalNav page template components",
+  "private": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./chrome": {
+      "types": "./dist/chrome.d.ts",
+      "import": "./dist/chrome.js",
+      "require": "./dist/chrome.cjs"
+    },
+    "./mainContent": {
+      "types": "./dist/mainContent.d.ts",
+      "import": "./dist/mainContent.js",
+      "require": "./dist/mainContent.cjs"
+    },
+    "./icons": {
+      "import": "./dist/icons.js",
+      "require": "./dist/icons.cjs"
+    },
+    "./components": {
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    ".claude"
+  ],
+  "sideEffects": false,
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicaelar/zendesk-globalnav-template.git"
+  },
+  "keywords": [
+    "zendesk",
+    "globalnav",
+    "navigation",
+    "react",
+    "components"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "@zendeskgarden/react-avatars": "^9.0.0",
+    "@zendeskgarden/react-buttons": "^9.0.0",
+    "@zendeskgarden/react-forms": "^9.0.0",
+    "@zendeskgarden/react-tabs": "^9.0.0",
+    "@zendeskgarden/react-theming": "^9.0.0",
+    "@zendeskgarden/react-tooltips": "^9.0.0",
+    "@zendeskgarden/react-typography": "^9.0.0",
+    "@zendeskgarden/svg-icons": "^8.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "styled-components": "^6.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "@zendeskgarden/react-avatars": "^9.15.0",
+    "@zendeskgarden/react-buttons": "^9.15.0",
+    "@zendeskgarden/react-forms": "^9.15.0",
+    "@zendeskgarden/react-tabs": "^9.15.0",
+    "@zendeskgarden/react-theming": "^9.15.0",
+    "@zendeskgarden/react-tooltips": "^9.15.0",
+    "@zendeskgarden/react-typography": "^9.15.0",
+    "@zendeskgarden/svg-icons": "^8.1.0",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "styled-components": "^6.3.11",
+    "vite": "^7.3.1",
+    "vite-plugin-dts": "^4.5.4",
+    "vite-plugin-svgr": "^4.5.0"
+  },
+  "dependencies": {}
+}

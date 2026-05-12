@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_figma_figma__get_metadata",
+      "mcp__plugin_figma_figma__get_design_context",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(curl:*)",
+      "mcp__plugin_figma_figma__get_screenshot",
+      "Bash(open:*)",
+      "Bash(do curl:*)",
+      "Bash(ls:*)",
+      "Bash(npm pack:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git remote:*)",
+      "Bash(ssh-keyscan:*)",
+      "Bash(git push:*)",
+      "Bash(git tag:*)",
+      "Bash(npm create:*)",
+      "Bash(grep:*)",
+      "Bash(lsof:*)",
+      "Bash(git mv:*)"
+    ]
+  }
+}

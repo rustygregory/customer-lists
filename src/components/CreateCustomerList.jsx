@@ -1,0 +1,592 @@
+import React, { useState, useRef, useEffect } from 'react'
+import styled from 'styled-components'
+import { Button } from '@zendeskgarden/react-buttons'
+import ConditionSelect from './ConditionSelect'
+import { filterCustomers } from './filterCustomers'
+import { customersByList } from './CustomersTable'
+
+const PageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+`
+
+const FormArea = styled.div`
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 40px;
+`
+
+const Title = styled.h1`
+  font-size: 24px;
+  font-weight: 500;
+  color: #2f3941;
+  margin: 0;
+`
+
+const FieldLabel = styled.label`
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2f3941;
+  margin-bottom: 8px;
+`
+
+const NameInput = styled.input`
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 12px;
+  border: 1px solid #d8dcde;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #2f3941;
+  outline: none;
+
+  &:focus {
+    border-color: #1f73b7;
+    box-shadow: 0 0 0 3px rgba(31, 115, 183, 0.15);
+  }
+`
+
+const Section = styled.div`
+  margin-top: 64px;
+`
+
+const SectionTitle = styled.h2`
+  font-size: 16px;
+  font-weight: 600;
+  color: #2f3941;
+  margin: 0 0 4px 0;
+`
+
+const SectionDescription = styled.p`
+  font-size: 14px;
+  color: #68737d;
+  margin: 0 0 16px 0;
+`
+
+const RadioGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`
+
+const RadioLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #2f3941;
+  cursor: pointer;
+`
+
+const RadioInput = styled.input`
+  width: 18px;
+  height: 18px;
+  accent-color: #1f73b7;
+  cursor: pointer;
+`
+
+const ConditionsSubtitle = styled.p`
+  font-size: 14px;
+  font-weight: 600;
+  color: #2f3941;
+  margin: 0 0 12px 0;
+`
+
+const ConditionCardWrapper = styled.div`
+  position: relative;
+  margin-bottom: 12px;
+  max-width: 700px;
+`
+
+const ConditionCard = styled.div`
+  border: 1px solid #d8dcde;
+  border-radius: 8px;
+  padding: 16px;
+`
+
+const ConditionFields = styled.div`
+  flex: 1;
+`
+
+const ColumnLabels = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 8px;
+`
+
+const ColumnLabel = styled.span`
+  font-size: 13px;
+  font-weight: 600;
+  color: #2f3941;
+`
+
+const ConditionsRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+`
+
+const RemoveConditionButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #68737d;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 4px;
+  right: -28px;
+  border-radius: 4px;
+
+  &:hover {
+    color: #2f3941;
+    background: #f3f4f4;
+  }
+`
+
+const fieldOptions = [
+  { value: 'name', label: 'Name' },
+  { value: 'email', label: 'Email' },
+  { value: 'tag', label: 'Tag' },
+  { value: 'organization', label: 'Organization' },
+  { value: 'created', label: 'Created date' },
+  { value: 'updated', label: 'Updated date' },
+]
+
+const operatorOptions = [
+  { value: 'is', label: 'Is' },
+  { value: 'is-not', label: 'Is not' },
+  { value: 'contains', label: 'Contains' },
+  { value: 'does-not-contain', label: 'Does not contain' },
+  { value: 'starts-with', label: 'Starts with' },
+  { value: 'ends-with', label: 'Ends with' },
+]
+
+const valueOptions = [
+  { value: 'any', label: 'Any' },
+  { value: 'none', label: 'None' },
+]
+
+const tagValueOptions = [
+  { value: 'diamond', label: 'Diamond' },
+  { value: 'platinum', label: 'Platinum' },
+  { value: 'gold', label: 'Gold' },
+  { value: 'silver', label: 'Silver' },
+  { value: 'bronze', label: 'Bronze' },
+  { value: 'nickle', label: 'Nickle' },
+  { value: 'pewter', label: 'Pewter' },
+]
+
+const AddConditionButton = styled.button`
+  margin-top: 12px;
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: #1f73b7;
+  background: #ffffff;
+  border: 1px solid #1f73b7;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: #edf7ff;
+  }
+`
+
+const PreviewContainer = styled.div`
+  border: 1px solid #d8dcde;
+  border-radius: 4px;
+  width: 100%;
+`
+
+const PreviewHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+`
+
+const PreviewCount = styled.span`
+  font-size: 14px;
+  font-weight: 600;
+  color: #2f3941;
+`
+
+const PreviewText = styled.span`
+  font-size: 14px;
+  color: #68737d;
+`
+
+const RefreshButton = styled.button`
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: #1f73b7;
+  background: #ffffff;
+  border: 1px solid #1f73b7;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: #edf7ff;
+  }
+`
+
+const PreviewTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`
+
+const PreviewTh = styled.th`
+  text-align: left;
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2f3941;
+  border-top: 1px solid #d8dcde;
+`
+
+const PreviewTd = styled.td`
+  padding: 12px 24px;
+  font-size: 14px;
+  color: #2f3941;
+  border-top: 1px solid #e9ebed;
+`
+
+const PreviewNameLink = styled.a`
+  color: #1f73b7;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`
+
+const BottomBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 16px 24px;
+  border-top: 1px solid #d8dcde;
+  background: #ffffff;
+  flex-shrink: 0;
+`
+
+const CancelButton = styled.button`
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #1f73b7;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: #144a75;
+  }
+`
+
+const SaveButton = styled.button`
+  height: 40px;
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  background: #1f73b7;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: #144a75;
+  }
+`
+
+const FormHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+`
+
+const FormActionsWrapper = styled.div`
+  position: relative;
+`
+
+const FormActionsButton = styled.button`
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: #1f73b7;
+  background: #ffffff;
+  border: 1px solid #1f73b7;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover {
+    background: #edf7ff;
+  }
+`
+
+const FormActionsDropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #d8dcde;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 160px;
+  padding: 4px 0;
+`
+
+const FormActionsDropdownItem = styled.button`
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: ${props => props.$destructive ? '#cc3340' : '#2f3941'};
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background: ${props => props.$destructive ? '#fff0f1' : '#f8f9f9'};
+  }
+`
+
+const allCustomers = customersByList.all
+
+function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate, initialName = '', initialAccess = 'any', initialConditions = null, isEditing = false }) {
+  const [name, setName] = useState(initialName)
+  const [access, setAccess] = useState(initialAccess)
+  const [conditions, setConditions] = useState(initialConditions || [{ category: '', operator: '', value: '' }])
+  const [showPreview, setShowPreview] = useState(false)
+  const [actionsOpen, setActionsOpen] = useState(false)
+  const actionsRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (actionsRef.current && !actionsRef.current.contains(e.target)) {
+        setActionsOpen(false)
+      }
+    }
+    if (actionsOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [actionsOpen])
+
+  const handleAddCondition = () => {
+    setConditions([...conditions, { category: '', operator: '', value: '' }])
+  }
+
+  const handleSave = () => {
+    if (name.trim()) {
+      onSave({ name: name.trim(), access, conditions })
+    }
+  }
+
+  return (
+    <PageWrapper>
+      <FormArea>
+        <FormHeader>
+          <Title>{initialName || 'Create a customer list'}</Title>
+          {isEditing && (
+            <FormActionsWrapper ref={actionsRef}>
+              <FormActionsButton onClick={() => setActionsOpen(!actionsOpen)}>
+                Actions
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </FormActionsButton>
+              {actionsOpen && (
+                <FormActionsDropdown>
+                  <FormActionsDropdownItem onClick={() => { setActionsOpen(false); onClone?.() }}>
+                    Clone
+                  </FormActionsDropdownItem>
+                  <FormActionsDropdownItem onClick={() => { setActionsOpen(false); onDeactivate?.() }}>
+                    Deactivate
+                  </FormActionsDropdownItem>
+                  <FormActionsDropdownItem $destructive onClick={() => { setActionsOpen(false); onDelete?.() }}>
+                    Delete
+                  </FormActionsDropdownItem>
+                </FormActionsDropdown>
+              )}
+            </FormActionsWrapper>
+          )}
+        </FormHeader>
+
+        <div>
+          <FieldLabel>Name* (required)</FieldLabel>
+          <NameInput
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoFocus
+          />
+
+          <FieldLabel style={{ marginTop: '24px' }}>Who has access</FieldLabel>
+          <SectionDescription>Select who can see and use this list</SectionDescription>
+          <RadioGroup>
+            <RadioLabel>
+              <RadioInput
+                type="radio"
+                name="access"
+                value="any"
+                checked={access === 'any'}
+                onChange={() => setAccess('any')}
+              />
+              Any agent
+            </RadioLabel>
+            <RadioLabel>
+              <RadioInput
+                type="radio"
+                name="access"
+                value="only-you"
+                checked={access === 'only-you'}
+                onChange={() => setAccess('only-you')}
+              />
+              Only you
+            </RadioLabel>
+            <RadioLabel>
+              <RadioInput
+                type="radio"
+                name="access"
+                value="specific-groups"
+                checked={access === 'specific-groups'}
+                onChange={() => setAccess('specific-groups')}
+              />
+              Agents in specific groups
+            </RadioLabel>
+          </RadioGroup>
+        </div>
+
+        <Section>
+          <SectionTitle>Conditions</SectionTitle>
+          <SectionDescription>
+            Conditions must be met for the schedule to delete end users who have no open tickets.
+          </SectionDescription>
+          <ConditionsSubtitle>Meet ALL of the following conditions</ConditionsSubtitle>
+          {conditions.map((condition, index) => (
+            <ConditionCardWrapper key={index}>
+              <ConditionCard>
+                <ColumnLabels>
+                  <ColumnLabel>Field</ColumnLabel>
+                  <ColumnLabel>Operator</ColumnLabel>
+                  <ColumnLabel>Value</ColumnLabel>
+                </ColumnLabels>
+                <ConditionsRow>
+                  <ConditionSelect
+                    value={condition.category}
+                    options={fieldOptions}
+                    onChange={(val) => {
+                      const updated = [...conditions]
+                      updated[index].category = val
+                      setConditions(updated)
+                    }}
+                  />
+                  <ConditionSelect
+                    value={condition.operator}
+                    options={operatorOptions}
+                    onChange={(val) => {
+                      const updated = [...conditions]
+                      updated[index].operator = val
+                      setConditions(updated)
+                    }}
+                  />
+                  <ConditionSelect
+                    value={condition.value}
+                    options={condition.category === 'tag' ? tagValueOptions : valueOptions}
+                    multiSelect={condition.category === 'tag'}
+                    onChange={(val) => {
+                      const updated = [...conditions]
+                      updated[index].value = val
+                      setConditions(updated)
+                    }}
+                  />
+                </ConditionsRow>
+              </ConditionCard>
+              {index > 0 && (
+                <RemoveConditionButton onClick={() => {
+                  setConditions(conditions.filter((_, i) => i !== index))
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </RemoveConditionButton>
+              )}
+            </ConditionCardWrapper>
+          ))}
+          <AddConditionButton onClick={handleAddCondition}>
+            Add condition
+          </AddConditionButton>
+        </Section>
+
+        <Section>
+          <SectionTitle>Preview list</SectionTitle>
+          <SectionDescription>
+            Sample of the data this schedule will start deleting the next time it runs.
+          </SectionDescription>
+          <PreviewContainer>
+            {showPreview ? (
+              <>
+                <PreviewHeader>
+                  <PreviewCount>{filterCustomers(allCustomers, conditions).length} customers</PreviewCount>
+                  <RefreshButton onClick={() => setShowPreview(true)}>Refresh</RefreshButton>
+                </PreviewHeader>
+                <PreviewTable>
+                  <thead>
+                    <tr>
+                      <PreviewTh>Name</PreviewTh>
+                      <PreviewTh>Email</PreviewTh>
+                      <PreviewTh>Tags</PreviewTh>
+                      <PreviewTh>Timezone</PreviewTh>
+                      <PreviewTh>Last updated</PreviewTh>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filterCustomers(allCustomers, conditions).map((customer, i) => (
+                      <tr key={customer.id || i}>
+                        <PreviewTd>
+                          <PreviewNameLink href="#">{customer.name}</PreviewNameLink>
+                        </PreviewTd>
+                        <PreviewTd>{customer.email || '-'}</PreviewTd>
+                        <PreviewTd>{customer.tags.length > 0 ? customer.tags.join(', ') : '-'}</PreviewTd>
+                        <PreviewTd>{customer.timezone}</PreviewTd>
+                        <PreviewTd>{customer.lastUpdated}</PreviewTd>
+                      </tr>
+                    ))}
+                  </tbody>
+                </PreviewTable>
+              </>
+            ) : (
+              <PreviewHeader>
+                <PreviewText>Results will show here</PreviewText>
+                <RefreshButton onClick={() => setShowPreview(true)}>Preview</RefreshButton>
+              </PreviewHeader>
+            )}
+          </PreviewContainer>
+        </Section>
+      </FormArea>
+
+      <BottomBar>
+        <CancelButton onClick={onCancel}>Cancel</CancelButton>
+        <SaveButton onClick={handleSave}>Save</SaveButton>
+      </BottomBar>
+    </PageWrapper>
+  )
+}
+
+export default CreateCustomerList

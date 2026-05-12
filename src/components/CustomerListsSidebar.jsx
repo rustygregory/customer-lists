@@ -129,7 +129,8 @@ const ListItem = styled.div`
   display: flex;
   align-items: center;
   padding: 10px 32px;
-  margin: ${props => props.$active ? '0 18px' : '0'};
+  margin: ${props => props.$active ? '0 20px' : '0'};
+  padding: ${props => props.$active ? '10px 12px' : '10px 32px'};
   font-size: 13px;
   font-weight: ${props => props.$active ? '600' : '400'};
   color: #2f3941;

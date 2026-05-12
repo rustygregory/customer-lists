@@ -7,7 +7,8 @@ const Wrapper = styled.div`
 
 const Trigger = styled.button`
   width: 100%;
-  padding: 10px 12px;
+  height: 32px;
+  padding: 0 12px;
   padding-right: 32px;
   border: 1px solid #d8dcde;
   border-radius: 4px;
@@ -40,8 +41,8 @@ const Trigger = styled.button`
 
 const MultiTrigger = styled.button`
   width: 100%;
-  min-height: 40px;
-  padding: 6px 32px 6px 8px;
+  min-height: 32px;
+  padding: 4px 32px 4px 8px;
   border: 1px solid #d8dcde;
   border-radius: 4px;
   font-size: 14px;

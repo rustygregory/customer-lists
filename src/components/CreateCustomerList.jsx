@@ -260,6 +260,31 @@ const PreviewTd = styled.td`
   border-top: 1px solid #e9ebed;
 `
 
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+`
+
+const EmptyIcon = styled.div`
+  margin-bottom: 16px;
+  color: #c2c8cc;
+`
+
+const EmptyTitle = styled.span`
+  font-size: 16px;
+  font-weight: 600;
+  color: #2f3941;
+  margin-bottom: 4px;
+`
+
+const EmptyDescription = styled.span`
+  font-size: 14px;
+  color: #68737d;
+`
+
 const PreviewNameLink = styled.a`
   color: #1f73b7;
   text-decoration: none;
@@ -540,38 +565,54 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
             Sample of the data this schedule will start deleting the next time it runs.
           </SectionDescription>
           <PreviewContainer>
-            {showPreview ? (
-              <>
+            {showPreview ? (() => {
+              const hasValidConditions = conditions.some(c => c.category && c.operator && (Array.isArray(c.value) ? c.value.length > 0 : !!c.value))
+              const results = hasValidConditions ? filterCustomers(allCustomers, conditions) : []
+              return <>
                 <PreviewHeader>
-                  <PreviewCount>{filterCustomers(allCustomers, conditions).length} customers</PreviewCount>
+                  <PreviewCount>{results.length} customers</PreviewCount>
                   <RefreshButton onClick={() => setShowPreview(true)}>Refresh</RefreshButton>
                 </PreviewHeader>
-                <PreviewTable>
-                  <thead>
-                    <tr>
-                      <PreviewTh>Name</PreviewTh>
-                      <PreviewTh>Email</PreviewTh>
-                      <PreviewTh>Tags</PreviewTh>
-                      <PreviewTh>Timezone</PreviewTh>
-                      <PreviewTh>Last updated</PreviewTh>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filterCustomers(allCustomers, conditions).map((customer, i) => (
-                      <tr key={customer.id || i}>
-                        <PreviewTd>
-                          <PreviewNameLink href="#">{customer.name}</PreviewNameLink>
-                        </PreviewTd>
-                        <PreviewTd>{customer.email || '-'}</PreviewTd>
-                        <PreviewTd>{customer.tags.length > 0 ? customer.tags.join(', ') : '-'}</PreviewTd>
-                        <PreviewTd>{customer.timezone}</PreviewTd>
-                        <PreviewTd>{customer.lastUpdated}</PreviewTd>
+                {results.length > 0 ? (
+                  <PreviewTable>
+                    <thead>
+                      <tr>
+                        <PreviewTh>Name</PreviewTh>
+                        <PreviewTh>Email</PreviewTh>
+                        <PreviewTh>Tags</PreviewTh>
+                        <PreviewTh>Timezone</PreviewTh>
+                        <PreviewTh>Last updated</PreviewTh>
                       </tr>
-                    ))}
-                  </tbody>
-                </PreviewTable>
+                    </thead>
+                    <tbody>
+                      {results.map((customer, i) => (
+                        <tr key={customer.id || i}>
+                          <PreviewTd>
+                            <PreviewNameLink href="#">{customer.name}</PreviewNameLink>
+                          </PreviewTd>
+                          <PreviewTd>{customer.email || '-'}</PreviewTd>
+                          <PreviewTd>{customer.tags.length > 0 ? customer.tags.join(', ') : '-'}</PreviewTd>
+                          <PreviewTd>{customer.timezone}</PreviewTd>
+                          <PreviewTd>{customer.lastUpdated}</PreviewTd>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </PreviewTable>
+                ) : (
+                  <EmptyState>
+                    <EmptyIcon>
+                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <circle cx="16" cy="16" r="14" stroke="#c2c8cc" strokeWidth="1.5"/>
+                        <circle cx="16" cy="22" r="1" fill="#c2c8cc"/>
+                        <path d="M16 10v8" stroke="#c2c8cc" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    </EmptyIcon>
+                    <EmptyTitle>No results in sight</EmptyTitle>
+                    <EmptyDescription>Adjust your search and try again.</EmptyDescription>
+                  </EmptyState>
+                )}
               </>
-            ) : (
+              })() : (
               <PreviewHeader>
                 <PreviewText>Results will show here</PreviewText>
                 <RefreshButton onClick={() => setShowPreview(true)}>Preview</RefreshButton>

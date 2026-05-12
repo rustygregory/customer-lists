@@ -35,7 +35,7 @@ const HeaderLeft = styled.div``
 
 const HeaderRight = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 20px;
   align-items: center;
 `
 

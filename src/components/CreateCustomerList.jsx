@@ -270,7 +270,7 @@ const EmptyState = styled.div`
 
 const EmptyIcon = styled.div`
   margin-bottom: 16px;
-  color: #c2c8cc;
+  color: #87929d;
 `
 
 const EmptyTitle = styled.span`
@@ -282,7 +282,7 @@ const EmptyTitle = styled.span`
 
 const EmptyDescription = styled.span`
   font-size: 14px;
-  color: #68737d;
+  color: #87929d;
 `
 
 const PreviewNameLink = styled.a`
@@ -602,9 +602,9 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
                   <EmptyState>
                     <EmptyIcon>
                       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                        <circle cx="16" cy="16" r="14" stroke="#c2c8cc" strokeWidth="1.5"/>
-                        <circle cx="16" cy="22" r="1" fill="#c2c8cc"/>
-                        <path d="M16 10v8" stroke="#c2c8cc" strokeWidth="1.5" strokeLinecap="round"/>
+                        <circle cx="16" cy="16" r="14" stroke="#87929d" strokeWidth="1.5"/>
+                        <circle cx="16" cy="11" r="1" fill="#87929d"/>
+                        <path d="M16 15v7" stroke="#87929d" strokeWidth="1.5" strokeLinecap="round"/>
                       </svg>
                     </EmptyIcon>
                     <EmptyTitle>No results in sight</EmptyTitle>

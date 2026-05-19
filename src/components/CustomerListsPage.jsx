@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { Button } from '@zendeskgarden/react-buttons'
 import { Field, Input } from '@zendeskgarden/react-forms'
-import { Menu, Item } from '@zendeskgarden/react-dropdowns'
 import CustomerListsSidebar from './CustomerListsSidebar'
 import CustomersTable from './CustomersTable'
 import { getCustomersForList } from './filterCustomers'
@@ -66,7 +65,7 @@ const LearnLink = styled.a`
   }
 `
 
-const ActionsMenuButton = styled(Button)`
+const BulkImportButton = styled(Button)`
   border-color: #1f73b7;
   color: #1f73b7;
   display: flex;
@@ -338,22 +337,9 @@ function CustomerListsPage() {
                 )}
               </ActionsWrapper>
             ) : (
-              <Menu
-                button={props => (
-                  <ActionsMenuButton isBasic {...props}>
-                    Actions <ChevronDownIcon />
-                  </ActionsMenuButton>
-                )}
-                onChange={({ value }) => {
-                  if (value === 'create') handleCreateList()
-                  if (value === 'manage') {}
-                  if (value === 'bulk-import') {}
-                }}
-              >
-                <Item value="create">Create a list</Item>
-                <Item value="manage">Manage lists</Item>
-                <Item value="bulk-import">Bulk import</Item>
-              </Menu>
+              <BulkImportButton isBasic>
+                Bulk import <ExternalLinkIcon />
+              </BulkImportButton>
             )}
             <AddCustomerButton isPrimary>Add customer</AddCustomerButton>
           </HeaderRight>

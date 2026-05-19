@@ -479,6 +479,7 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [actionsOpen, setActionsOpen] = useState(false)
   const [selectedGroups, setSelectedGroups] = useState([])
+  const [groupsSearch, setGroupsSearch] = useState('')
   const actionsRef = useRef(null)
 
   useEffect(() => {
@@ -624,10 +625,15 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
                   <Combobox
                     isMultiselectable
                     isAutocomplete
+                    inputValue={groupsSearch}
                     selectionValue={selectedGroups}
                     onChange={(changes) => {
+                      if ('inputValue' in changes) {
+                        setGroupsSearch(changes.inputValue || '')
+                      }
                       if ('selectionValue' in changes) {
-                        setSelectedGroups(Array.isArray(changes.selectionValue) ? changes.selectionValue : [])
+                        const val = changes.selectionValue
+                        setSelectedGroups(Array.isArray(val) ? val : val == null ? [] : [val])
                       }
                     }}
                   >

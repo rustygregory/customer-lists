@@ -6,6 +6,7 @@ import CustomerListsSidebar from './CustomerListsSidebar'
 import CustomersTable from './CustomersTable'
 import { getCustomersForList } from './filterCustomers'
 import CreateCustomerList from './CreateCustomerList'
+import ManageLists from './ManageLists'
 import SuccessNotification from './SuccessNotification'
 
 const PageLayout = styled.div`
@@ -240,6 +241,15 @@ function CustomerListsPage() {
     setView('list')
   }
 
+  const handleManageLists = () => {
+    setView('manage')
+  }
+
+  const handleEditFromManage = (list) => {
+    setEditingList(list)
+    setView('create')
+  }
+
   const isInsideList = activeList !== 'all'
   const activeListLabel = lists.find(l => l.id === activeList)?.label || 'Customers'
 
@@ -256,8 +266,15 @@ function CustomerListsPage() {
         onSelectList={setActiveList}
         lists={lists}
         onCreateList={handleCreateList}
+        onManageLists={handleManageLists}
       />
-      {view === 'create' ? (
+      {view === 'manage' ? (
+        <ManageLists
+          lists={lists}
+          onEditList={handleEditFromManage}
+          onDone={() => setView('list')}
+        />
+      ) : view === 'create' ? (
         <CreateCustomerList
           onSave={handleSaveList}
           onCancel={handleCancelCreate}

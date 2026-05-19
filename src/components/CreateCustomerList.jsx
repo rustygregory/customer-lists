@@ -626,9 +626,9 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
                     isAutocomplete
                     maxTags={4}
                     selectionValue={selectedGroups}
-                    onChange={({ selectionValue }) => {
-                      if (selectionValue !== undefined) {
-                        setSelectedGroups(selectionValue || [])
+                    onChange={(changes) => {
+                      if ('selectionValue' in changes) {
+                        setSelectedGroups(Array.isArray(changes.selectionValue) ? changes.selectionValue : [])
                       }
                     }}
                   >

@@ -111,14 +111,14 @@ const RadioInput = styled.input`
 
 const GroupsContainer = styled.div`
   margin-top: 12px;
-  margin-left: 26px;
-  width: 430px;
+  margin-left: 12px;
+  width: 230px;
 `
 
 const GroupsLabel = styled.label`
   display: block;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 400;
   color: #2f3941;
   margin-bottom: 8px;
 `

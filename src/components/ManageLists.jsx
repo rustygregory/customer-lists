@@ -72,12 +72,17 @@ const SortableTh = styled(Th)`
   }
 `
 
-const SortIcon = styled.span`
-  margin-left: 4px;
+const SortIconWrapper = styled.span`
+  margin-left: 6px;
   display: inline-flex;
   flex-direction: column;
+  align-items: center;
   vertical-align: middle;
-  font-size: 14px;
+  gap: 2px;
+`
+
+const Caret = styled.span`
+  font-size: 10px;
   line-height: 1;
   color: ${props => props.$active ? '#2f3941' : '#c2c8cc'};
 `
@@ -239,17 +244,11 @@ const OverflowIcon = () => (
 
 const SortCaret = ({ field, sortField, sortDirection }) => {
   const isActive = sortField === field
-  if (isActive) {
-    return (
-      <SortIcon $active>
-        {sortDirection === 'asc' ? '▴' : '▾'}
-      </SortIcon>
-    )
-  }
   return (
-    <SortIcon>
-      {'◇'}
-    </SortIcon>
+    <SortIconWrapper>
+      <Caret $active={isActive && sortDirection === 'asc'}>▴</Caret>
+      <Caret $active={isActive && sortDirection === 'desc'}>▾</Caret>
+    </SortIconWrapper>
   )
 }
 

@@ -17,10 +17,10 @@ const Thead = styled.thead`
 
 const Th = styled.th`
   text-align: left;
-  padding: 10px 12px;
-  font-weight: 500;
-  color: #68737d;
-  font-size: 12px;
+  padding: 12px 12px;
+  font-weight: 600;
+  color: #2f3941;
+  font-size: 14px;
   white-space: nowrap;
 
   &:first-child {
@@ -136,9 +136,19 @@ const Dash = styled.span`
   color: #87929d;
 `
 
-const SortArrow = styled.span`
-  margin-left: 4px;
+const SortIconWrapper = styled.span`
+  margin-left: 6px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  gap: 2px;
+`
+
+const Caret = styled.span`
   font-size: 10px;
+  line-height: 1;
+  color: ${props => props.$active ? '#2f3941' : '#c2c8cc'};
 `
 
 export const customersByList = {
@@ -252,14 +262,20 @@ function CustomersTable({ customers = customersByList.all }) {
             <Th></Th>
             <SortableTh>
               Name
-              <SortArrow>⇅</SortArrow>
+              <SortIconWrapper>
+                <Caret $active={false}>▴</Caret>
+                <Caret $active={false}>▾</Caret>
+              </SortIconWrapper>
             </SortableTh>
             <Th>Email</Th>
             <Th>Tags</Th>
             <Th>Timezone</Th>
             <SortableTh>
               Last updated
-              <SortArrow>↓</SortArrow>
+              <SortIconWrapper>
+                <Caret $active={false}>▴</Caret>
+                <Caret $active={true}>▾</Caret>
+              </SortIconWrapper>
             </SortableTh>
           </tr>
         </Thead>

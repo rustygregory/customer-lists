@@ -40,11 +40,28 @@ const HeaderRight = styled.div`
   align-items: center;
 `
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`
+
 const Title = styled.h1`
   font-size: 26px;
   font-weight: 600;
   color: #2f3941;
   margin: 0 0 4px 0;
+`
+
+const StatusTag = styled.span`
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${props => props.$status === 'active' ? '#ffffff' : '#2f3941'};
+  background: ${props => props.$status === 'active' ? '#1f73b7' : '#ffffff'};
+  border: 1px solid ${props => props.$status === 'active' ? '#1f73b7' : '#d8dcde'};
 `
 
 const Subtitle = styled.p`
@@ -336,7 +353,18 @@ function CustomerListsPage() {
       <MainArea>
         <Header>
           <HeaderLeft>
-            <Title>{isInsideList ? activeListLabel : 'Customers'}</Title>
+            <TitleRow>
+              <Title>{isInsideList ? activeListLabel : 'Customers'}</Title>
+              {isInsideList && (() => {
+                const currentList = lists.find(l => l.id === activeList)
+                const listStatus = currentList?.status || 'active'
+                return (
+                  <StatusTag $status={listStatus}>
+                    {listStatus === 'active' ? 'Active' : 'Inactive'}
+                  </StatusTag>
+                )
+              })()}
+            </TitleRow>
             <Subtitle>Add, search, and manage your customers (end users) all in one place.</Subtitle>
             <LearnLink href="#">
               Learn about this page <ExternalLinkIcon />

@@ -23,6 +23,12 @@ const Title = styled.h1`
   margin: 0 0 32px 0;
 `
 
+const Counter = styled.div`
+  font-size: 14px;
+  color: #2f3941;
+  margin-bottom: 16px;
+`
+
 const TableContainer = styled.div`
   width: 100%;
 `
@@ -40,9 +46,9 @@ const Thead = styled.thead`
 const Th = styled.th`
   text-align: left;
   padding: 12px 16px;
-  font-weight: 500;
+  font-weight: 600;
   color: #2f3941;
-  font-size: 13px;
+  font-size: 14px;
   white-space: nowrap;
 
   &:first-child {
@@ -71,7 +77,7 @@ const SortIcon = styled.span`
   display: inline-flex;
   flex-direction: column;
   vertical-align: middle;
-  font-size: 9px;
+  font-size: 14px;
   line-height: 1;
   color: ${props => props.$active ? '#2f3941' : '#c2c8cc'};
 `
@@ -129,8 +135,9 @@ const TypeTag = styled.span`
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  color: #ffffff;
+  color: ${props => props.$type === 'shared' ? '#ffffff' : '#ffffff'};
   background: ${props => props.$type === 'shared' ? '#7b68a5' : '#3d6e70'};
+  border: 1px solid ${props => props.$type === 'shared' ? '#7b68a5' : '#3d6e70'};
 `
 
 const StatusTag = styled.span`
@@ -324,6 +331,7 @@ function ManageLists({ lists, onEditList, onDone }) {
     <PageWrapper>
       <ContentArea>
         <Title>Manage lists</Title>
+        <Counter>{lists.length} lists</Counter>
         <TableContainer>
           <Table>
             <Thead>

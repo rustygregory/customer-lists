@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { Button } from '@zendeskgarden/react-buttons'
 import { Field, Input } from '@zendeskgarden/react-forms'
+import { Modal, Header as ModalHeader, Body as ModalBody, Footer as ModalFooter, FooterItem, Close } from '@zendeskgarden/react-modals'
+import { Notification, Title as NotifTitle, Paragraph, Close as NotifClose } from '@zendeskgarden/react-notifications'
 import CustomerListsSidebar from './CustomerListsSidebar'
 import CustomersTable from './CustomersTable'
 import { getCustomersForList } from './filterCustomers'
@@ -151,6 +153,13 @@ const ActionsDropdownItem = styled.button`
   }
 `
 
+const ErrorNotificationWrapper = styled.div`
+  position: fixed;
+  top: 72px;
+  right: 40px;
+  z-index: 1100;
+`
+
 const SearchContainer = styled.div`
   margin-bottom: 16px;
   max-width: 400px;
@@ -215,6 +224,9 @@ function CustomerListsPage() {
   const [cameFromManage, setCameFromManage] = useState(false)
   const [actionsOpen, setActionsOpen] = useState(false)
   const [notification, setNotification] = useState(null)
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showDeleteError, setShowDeleteError] = useState(false)
   const actionsRef = useRef(null)
 
   useEffect(() => {
@@ -397,8 +409,7 @@ function CustomerListsPage() {
                     {isActive ? (
                       <ActionsDropdownItem onClick={() => {
                         setActionsOpen(false)
-                        setLists(lists.map(l => l.id === activeList ? { ...l, status: 'deactivated' } : l))
-                        setNotification('Customer list deactivated')
+                        setShowDeactivateModal(true)
                       }}>
                         Deactivate
                       </ActionsDropdownItem>
@@ -417,16 +428,16 @@ function CustomerListsPage() {
                     <ActionsDropdownItem onClick={() => setActionsOpen(false)}>
                       Bulk import
                     </ActionsDropdownItem>
-                    {!isActive && (
-                      <ActionsDropdownItem $destructive onClick={() => {
-                        setActionsOpen(false)
-                        setLists(lists.filter(l => l.id !== activeList))
-                        setActiveList('all')
-                        setNotification('Customer list deleted')
-                      }}>
-                        Delete
-                      </ActionsDropdownItem>
-                    )}
+                    <ActionsDropdownItem $destructive onClick={() => {
+                      setActionsOpen(false)
+                      if (isActive) {
+                        setShowDeleteError(true)
+                      } else {
+                        setShowDeleteModal(true)
+                      }
+                    }}>
+                      Delete
+                    </ActionsDropdownItem>
                   </ActionsDropdown>
                   )
                 })()}
@@ -451,6 +462,70 @@ function CustomerListsPage() {
 
         <CustomersTable customers={getCustomersForList(activeList, lists)} />
       </MainArea>
+      )}
+      {showDeleteError && (
+        <ErrorNotificationWrapper>
+          <Notification type="error">
+            <NotifTitle>Cannot delete active list</NotifTitle>
+            <Paragraph>Deactivate customer list before it can be deleted.</Paragraph>
+            <NotifClose aria-label="Close" onClick={() => setShowDeleteError(false)} />
+          </Notification>
+        </ErrorNotificationWrapper>
+      )}
+      {showDeactivateModal && (
+        <Modal onClose={() => setShowDeactivateModal(false)}>
+          <ModalHeader>
+            Deactivate customer list
+          </ModalHeader>
+          <ModalBody>
+            You are deactivating <strong>{activeListLabel}</strong>. It will become unavailable for use, but you can reactivate or delete it at any time.
+          </ModalBody>
+          <ModalFooter>
+            <FooterItem>
+              <Button isBasic onClick={() => setShowDeactivateModal(false)}>
+                Cancel
+              </Button>
+            </FooterItem>
+            <FooterItem>
+              <Button isPrimary onClick={() => {
+                setShowDeactivateModal(false)
+                setLists(lists.map(l => l.id === activeList ? { ...l, status: 'deactivated' } : l))
+                setNotification('Customer list deactivated')
+              }}>
+                Deactivate
+              </Button>
+            </FooterItem>
+          </ModalFooter>
+          <Close aria-label="Close modal" />
+        </Modal>
+      )}
+      {showDeleteModal && (
+        <Modal onClose={() => setShowDeleteModal(false)} isDanger>
+          <ModalHeader isDanger>
+            Delete customer list
+          </ModalHeader>
+          <ModalBody>
+            You are permanently deleting <strong>{activeListLabel}</strong>. You will have to create it again after it has been deleted.
+          </ModalBody>
+          <ModalFooter>
+            <FooterItem>
+              <Button isBasic onClick={() => setShowDeleteModal(false)}>
+                Cancel
+              </Button>
+            </FooterItem>
+            <FooterItem>
+              <Button isDanger isPrimary onClick={() => {
+                setShowDeleteModal(false)
+                setLists(lists.filter(l => l.id !== activeList))
+                setActiveList('all')
+                setNotification('Customer list deleted')
+              }}>
+                Delete
+              </Button>
+            </FooterItem>
+          </ModalFooter>
+          <Close aria-label="Close modal" />
+        </Modal>
       )}
     </PageLayout>
   )

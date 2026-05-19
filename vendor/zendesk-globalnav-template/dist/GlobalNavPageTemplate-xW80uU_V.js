@@ -434,10 +434,7 @@ const yn = ({ currentProduct: n = "support", onProductChange: g }) => {
             /* @__PURE__ */ e(f, { children: /* @__PURE__ */ e(oe, { size: 20 }) })
           ] }),
           /* @__PURE__ */ e(T, { children: /* @__PURE__ */ e(G, {}) }),
-          /* @__PURE__ */ i(f, { children: [
-            /* @__PURE__ */ e(Pe, { size: 20 }),
-            /* @__PURE__ */ e(wn, { children: "1" })
-          ] }),
+          /* @__PURE__ */ e(f, { children: /* @__PURE__ */ e(Pe, { size: 20 }) }),
           /* @__PURE__ */ e(f, { children: /* @__PURE__ */ e(Me, { size: 20 }) }),
           /* @__PURE__ */ e(w, { size: "small", backgroundColor: "#f8f9f9", children: /* @__PURE__ */ e(y, { size: 16, color: "#5C6970" }) })
         ] })

@@ -624,6 +624,7 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
                   <Combobox
                     isMultiselectable
                     isAutocomplete
+                    maxTags={4}
                     selectionValue={selectedGroups}
                     onChange={({ selectionValue }) => {
                       if (selectionValue !== undefined) {

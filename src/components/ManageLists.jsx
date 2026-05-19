@@ -500,30 +500,26 @@ function ManageLists({ lists, onEditList, onDone, onDeactivateLists, onActivateL
           </Table>
         </TableContainer>
       </ContentArea>
-      <BottomBar>
-        {selectedIds.length > 0 ? (
-          <>
-            <BottomBarLeft>
-              <SelectedCount>{selectedIds.length} selected</SelectedCount>
-              {selectedIds.some(id => getStatus(lists.find(l => l.id === id)) === 'active') && (
-                <BottomBarAction onClick={() => { setDeactivateTargetIds(selectedIds.filter(id => getStatus(lists.find(l => l.id === id)) === 'active')); setShowDeactivateModal(true) }}>Deactivate</BottomBarAction>
-              )}
-              {selectedIds.some(id => getStatus(lists.find(l => l.id === id)) !== 'active') && (
-                <BottomBarAction onClick={() => {
-                  const ids = selectedIds.filter(id => getStatus(lists.find(l => l.id === id)) !== 'active')
-                  onActivateLists?.(ids)
-                }}>Activate</BottomBarAction>
-              )}
-              {selectedIds.some(id => getStatus(lists.find(l => l.id === id)) !== 'active') && (
-                <BottomBarAction $destructive onClick={() => { setDeleteTargetIds(selectedIds.filter(id => getStatus(lists.find(l => l.id === id)) !== 'active')); setShowDeleteModal(true) }}>Delete</BottomBarAction>
-              )}
-            </BottomBarLeft>
-            <ClearSelection onClick={() => setSelectedIds([])}>Clear selection</ClearSelection>
-          </>
-        ) : (
-          <SaveButton onClick={onDone} style={{ marginLeft: 'auto' }}>Save</SaveButton>
-        )}
-      </BottomBar>
+      {selectedIds.length > 0 && (
+        <BottomBar>
+          <BottomBarLeft>
+            <SelectedCount>{selectedIds.length} selected</SelectedCount>
+            {selectedIds.some(id => getStatus(lists.find(l => l.id === id)) === 'active') && (
+              <BottomBarAction onClick={() => { setDeactivateTargetIds(selectedIds.filter(id => getStatus(lists.find(l => l.id === id)) === 'active')); setShowDeactivateModal(true) }}>Deactivate</BottomBarAction>
+            )}
+            {selectedIds.some(id => getStatus(lists.find(l => l.id === id)) !== 'active') && (
+              <BottomBarAction onClick={() => {
+                const ids = selectedIds.filter(id => getStatus(lists.find(l => l.id === id)) !== 'active')
+                onActivateLists?.(ids)
+              }}>Activate</BottomBarAction>
+            )}
+            {selectedIds.some(id => getStatus(lists.find(l => l.id === id)) !== 'active') && (
+              <BottomBarAction $destructive onClick={() => { setDeleteTargetIds(selectedIds.filter(id => getStatus(lists.find(l => l.id === id)) !== 'active')); setShowDeleteModal(true) }}>Delete</BottomBarAction>
+            )}
+          </BottomBarLeft>
+          <ClearSelection onClick={() => setSelectedIds([])}>Clear selection</ClearSelection>
+        </BottomBar>
+      )}
       {showDeactivateModal && (
         <Modal onClose={() => setShowDeactivateModal(false)}>
           <ModalHeader>

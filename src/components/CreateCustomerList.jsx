@@ -113,7 +113,7 @@ const RadioInput = styled.input`
 const GroupsContainer = styled.div`
   margin-top: 12px;
   margin-left: 12px;
-  width: 230px;
+  width: 430px;
 `
 
 const ConditionsSubtitle = styled.p`
@@ -624,7 +624,6 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
                   <Combobox
                     isMultiselectable
                     isAutocomplete
-                    placeholder="Search groups"
                     selectionValue={selectedGroups}
                     onChange={({ selectionValue }) => {
                       if (selectionValue !== undefined) {

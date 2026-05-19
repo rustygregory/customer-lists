@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { Button } from '@zendeskgarden/react-buttons'
+import { Modal, Header as ModalHeader, Body as ModalBody, Footer as ModalFooter, FooterItem, Close } from '@zendeskgarden/react-modals'
+import { Notification, Title as NotifTitle, Paragraph, Close as NotifClose } from '@zendeskgarden/react-notifications'
 import ConditionSelect from './ConditionSelect'
 import { filterCustomers } from './filterCustomers'
 import { customersByList } from './CustomersTable'
@@ -20,11 +22,28 @@ const FormArea = styled.div`
   padding: 40px;
 `
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`
+
 const Title = styled.h1`
   font-size: 24px;
   font-weight: 500;
   color: #2f3941;
   margin: 0;
+`
+
+const StatusTag = styled.span`
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${props => props.$status === 'active' ? '#ffffff' : '#2f3941'};
+  background: ${props => props.$status === 'active' ? '#1f73b7' : '#ffffff'};
+  border: 1px solid ${props => props.$status === 'active' ? '#1f73b7' : '#d8dcde'};
 `
 
 const FieldLabel = styled.label`
@@ -334,6 +353,35 @@ const SaveButton = styled.button`
   }
 `
 
+const Breadcrumbs = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+`
+
+const BreadcrumbLink = styled.button`
+  color: #1f73b7;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`
+
+const BreadcrumbSeparator = styled.span`
+  color: #68737d;
+`
+
+const BreadcrumbCurrent = styled.span`
+  color: #2f3941;
+`
+
 const FormHeader = styled.div`
   display: flex;
   align-items: center;
@@ -392,13 +440,23 @@ const FormActionsDropdownItem = styled.button`
   }
 `
 
+const ErrorNotificationWrapper = styled.div`
+  position: fixed;
+  top: 72px;
+  right: 40px;
+  z-index: 1100;
+`
+
 const allCustomers = customersByList.all
 
-function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate, initialName = '', initialAccess = 'any', initialConditions = null, isEditing = false }) {
+function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate, onActivate, initialName = '', initialAccess = 'any', initialConditions = null, isEditing = false, status, cameFromManage, onNavigateHome, onNavigateManage }) {
   const [name, setName] = useState(initialName)
   const [access, setAccess] = useState(initialAccess)
   const [conditions, setConditions] = useState(initialConditions || [{ category: '', operator: '', value: '' }])
   const [showPreview, setShowPreview] = useState(false)
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false)
+  const [showDeleteError, setShowDeleteError] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [actionsOpen, setActionsOpen] = useState(false)
   const actionsRef = useRef(null)
 
@@ -426,9 +484,38 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
 
   return (
     <PageWrapper>
+      {showDeleteError && (
+        <ErrorNotificationWrapper>
+          <Notification type="error">
+            <NotifTitle>Cannot delete active list</NotifTitle>
+            <Paragraph>Deactivate customer list before it can be deleted.</Paragraph>
+            <NotifClose aria-label="Close" onClick={() => setShowDeleteError(false)} />
+          </Notification>
+        </ErrorNotificationWrapper>
+      )}
       <FormArea>
+        <Breadcrumbs>
+          <BreadcrumbLink onClick={onNavigateHome}>Customer Lists</BreadcrumbLink>
+          <BreadcrumbSeparator>&gt;</BreadcrumbSeparator>
+          {cameFromManage ? (
+            <>
+              <BreadcrumbLink onClick={onNavigateManage}>Manage lists</BreadcrumbLink>
+              <BreadcrumbSeparator>&gt;</BreadcrumbSeparator>
+              <BreadcrumbCurrent>{initialName || 'New list'}</BreadcrumbCurrent>
+            </>
+          ) : (
+            <BreadcrumbCurrent>{isEditing ? initialName : 'Create a customer list'}</BreadcrumbCurrent>
+          )}
+        </Breadcrumbs>
         <FormHeader>
-          <Title>{initialName || 'Create a customer list'}</Title>
+          <TitleRow>
+            <Title>{initialName || 'Create a customer list'}</Title>
+            {isEditing && status && (
+              <StatusTag $status={status === 'active' ? 'active' : 'inactive'}>
+                {status === 'active' ? 'Active' : 'Inactive'}
+              </StatusTag>
+            )}
+          </TitleRow>
           {isEditing && (
             <FormActionsWrapper ref={actionsRef}>
               <FormActionsButton onClick={() => setActionsOpen(!actionsOpen)}>
@@ -442,10 +529,23 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
                   <FormActionsDropdownItem onClick={() => { setActionsOpen(false); onClone?.() }}>
                     Clone
                   </FormActionsDropdownItem>
-                  <FormActionsDropdownItem onClick={() => { setActionsOpen(false); onDeactivate?.() }}>
-                    Deactivate
-                  </FormActionsDropdownItem>
-                  <FormActionsDropdownItem $destructive onClick={() => { setActionsOpen(false); onDelete?.() }}>
+                  {status === 'active' || !status ? (
+                    <FormActionsDropdownItem onClick={() => { setActionsOpen(false); setShowDeactivateModal(true) }}>
+                      Deactivate
+                    </FormActionsDropdownItem>
+                  ) : (
+                    <FormActionsDropdownItem onClick={() => { setActionsOpen(false); onActivate?.() }}>
+                      Activate
+                    </FormActionsDropdownItem>
+                  )}
+                  <FormActionsDropdownItem $destructive onClick={() => {
+                    setActionsOpen(false)
+                    if (status === 'active' || !status) {
+                      setShowDeleteError(true)
+                    } else {
+                      setShowDeleteModal(true)
+                    }
+                  }}>
                     Delete
                   </FormActionsDropdownItem>
                 </FormActionsDropdown>
@@ -626,6 +726,58 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
         <CancelButton onClick={onCancel}>Cancel</CancelButton>
         <SaveButton onClick={handleSave}>Save</SaveButton>
       </BottomBar>
+      {showDeactivateModal && (
+        <Modal onClose={() => setShowDeactivateModal(false)}>
+          <ModalHeader>
+            Deactivate customer list
+          </ModalHeader>
+          <ModalBody>
+            You are deactivating <strong>{initialName}</strong>. It will become unavailable for use, but you can reactivate or delete it at any time.
+          </ModalBody>
+          <ModalFooter>
+            <FooterItem>
+              <Button isBasic onClick={() => setShowDeactivateModal(false)}>
+                Cancel
+              </Button>
+            </FooterItem>
+            <FooterItem>
+              <Button isPrimary onClick={() => {
+                setShowDeactivateModal(false)
+                onDeactivate?.()
+              }}>
+                Deactivate
+              </Button>
+            </FooterItem>
+          </ModalFooter>
+          <Close aria-label="Close modal" />
+        </Modal>
+      )}
+      {showDeleteModal && (
+        <Modal onClose={() => setShowDeleteModal(false)} isDanger>
+          <ModalHeader isDanger>
+            Delete customer list
+          </ModalHeader>
+          <ModalBody>
+            You are permanently deleting <strong>{initialName}</strong>. You will have to create it again after it has been deleted.
+          </ModalBody>
+          <ModalFooter>
+            <FooterItem>
+              <Button isBasic onClick={() => setShowDeleteModal(false)}>
+                Cancel
+              </Button>
+            </FooterItem>
+            <FooterItem>
+              <Button isDanger isPrimary onClick={() => {
+                setShowDeleteModal(false)
+                onDelete?.()
+              }}>
+                Delete
+              </Button>
+            </FooterItem>
+          </ModalFooter>
+          <Close aria-label="Close modal" />
+        </Modal>
+      )}
     </PageWrapper>
   )
 }

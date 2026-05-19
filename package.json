@@ -10,10 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "zendesk-globalnav-template": "file:./vendor/zendesk-globalnav-template",
     "@zendeskgarden/react-avatars": "^9.15.4",
     "@zendeskgarden/react-buttons": "^9.15.4",
     "@zendeskgarden/react-forms": "^9.15.4",
+    "@zendeskgarden/react-modals": "^9.15.4",
+    "@zendeskgarden/react-notifications": "^9.15.4",
     "@zendeskgarden/react-tabs": "^9.15.4",
     "@zendeskgarden/react-theming": "^9.15.4",
     "@zendeskgarden/react-tooltips": "^9.15.4",
@@ -21,7 +22,8 @@
     "@zendeskgarden/svg-icons": "^8.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "styled-components": "^6.4.1"
+    "styled-components": "^6.4.1",
+    "zendesk-globalnav-template": "file:./vendor/zendesk-globalnav-template"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

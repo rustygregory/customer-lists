@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
+import { Modal, Header as ModalHeader, Body as ModalBody, Footer as ModalFooter, FooterItem, Close } from '@zendeskgarden/react-modals'
+import { Button } from '@zendeskgarden/react-buttons'
 
 const PageWrapper = styled.div`
   display: flex;
@@ -14,6 +16,35 @@ const ContentArea = styled.div`
   min-height: 0;
   overflow-y: auto;
   padding: 40px;
+`
+
+const Breadcrumbs = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+`
+
+const BreadcrumbLink = styled.button`
+  color: #1f73b7;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`
+
+const BreadcrumbSeparator = styled.span`
+  color: #68737d;
+`
+
+const BreadcrumbCurrent = styled.span`
+  color: #2f3941;
 `
 
 const Title = styled.h1`
@@ -45,7 +76,7 @@ const Thead = styled.thead`
 
 const Th = styled.th`
   text-align: left;
-  padding: 12px 16px;
+  padding: 12px 12px;
   font-weight: 600;
   color: #2f3941;
   font-size: 14px;
@@ -53,8 +84,8 @@ const Th = styled.th`
 
   &:first-child {
     width: 40px;
-    padding-left: 20px;
-    padding-right: 8px;
+    padding-left: 12px;
+    padding-right: 10px;
   }
 
   &:last-child {
@@ -75,16 +106,7 @@ const SortableTh = styled(Th)`
 const SortIconWrapper = styled.span`
   margin-left: 6px;
   display: inline-flex;
-  flex-direction: column;
-  align-items: center;
   vertical-align: middle;
-  gap: 2px;
-`
-
-const Caret = styled.span`
-  font-size: 10px;
-  line-height: 1;
-  color: ${props => props.$active ? '#2f3941' : '#c2c8cc'};
 `
 
 const Tbody = styled.tbody``
@@ -98,15 +120,15 @@ const Tr = styled.tr`
 `
 
 const Td = styled.td`
-  padding: 12px 16px;
+  padding: 12px 12px;
   color: #2f3941;
   vertical-align: middle;
   font-size: 14px;
 
   &:first-child {
     width: 40px;
-    padding-left: 20px;
-    padding-right: 8px;
+    padding-left: 12px;
+    padding-right: 10px;
   }
 
   &:last-child {
@@ -210,15 +232,54 @@ const OverflowWrapper = styled.div`
 const BottomBar = styled.div`
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 16px;
-  padding: 16px 24px;
+  padding: 0 24px 0 40px;
+  height: 80px;
   border-top: 1px solid #d8dcde;
   background: #ffffff;
   flex-shrink: 0;
 `
 
-const DoneButton = styled.button`
+const BottomBarLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 32px;
+`
+
+const SelectedCount = styled.span`
+  font-size: 14px;
+  font-weight: 500;
+  color: #2f3941;
+`
+
+const BottomBarAction = styled.button`
+  font-size: 14px;
+  color: ${props => props.$destructive ? '#cc3340' : '#1f73b7'};
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`
+
+const ClearSelection = styled.button`
+  font-size: 14px;
+  color: #1f73b7;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+  margin-right: 56px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`
+
+const SaveButton = styled.button`
   height: 40px;
   padding: 0 20px;
   font-size: 14px;
@@ -234,6 +295,14 @@ const DoneButton = styled.button`
   }
 `
 
+const ModalList = styled.ul`
+  margin: 8px 0 0 0;
+  padding: 0 0 0 20px;
+  font-size: 14px;
+  color: #2f3941;
+  line-height: 1.8;
+`
+
 const OverflowIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="3" r="1.25" fill="currentColor"/>
@@ -242,20 +311,27 @@ const OverflowIcon = () => (
   </svg>
 )
 
-const SortCaret = ({ field, sortField, sortDirection }) => {
+const SortIcon = ({ field, sortField, sortDirection }) => {
   const isActive = sortField === field
+  const color = '#68737d'
   return (
     <SortIconWrapper>
-      <Caret $active={isActive && sortDirection === 'asc'}>▴</Caret>
-      <Caret $active={isActive && sortDirection === 'desc'}>▾</Caret>
+      <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 4.5L4 1.5L7 4.5" stroke={isActive && sortDirection === 'asc' ? '#2f3941' : color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M1 7.5L4 10.5L7 7.5" stroke={isActive && sortDirection === 'desc' ? '#2f3941' : color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
     </SortIconWrapper>
   )
 }
 
-function ManageLists({ lists, onEditList, onDone }) {
+function ManageLists({ lists, onEditList, onDone, onDeactivateLists, onActivateLists, onDeleteLists, onNavigateHome }) {
   const [sortField, setSortField] = useState('type')
   const [sortDirection, setSortDirection] = useState('asc')
   const [selectedIds, setSelectedIds] = useState([])
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false)
+  const [deactivateTargetIds, setDeactivateTargetIds] = useState([])
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteTargetIds, setDeleteTargetIds] = useState([])
   const [openMenuId, setOpenMenuId] = useState(null)
   const menuRef = useRef(null)
 
@@ -309,6 +385,14 @@ function ManageLists({ lists, onEditList, onDone }) {
   })
 
   const allSelected = selectedIds.length === lists.length && lists.length > 0
+  const someSelected = selectedIds.length > 0 && !allSelected
+  const selectAllRef = useRef(null)
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = someSelected
+    }
+  }, [someSelected])
 
   const handleSelectAll = () => {
     if (allSelected) {
@@ -329,24 +413,29 @@ function ManageLists({ lists, onEditList, onDone }) {
   return (
     <PageWrapper>
       <ContentArea>
+        <Breadcrumbs>
+          <BreadcrumbLink onClick={onNavigateHome}>Customer Lists</BreadcrumbLink>
+          <BreadcrumbSeparator>&gt;</BreadcrumbSeparator>
+          <BreadcrumbCurrent>Manage lists</BreadcrumbCurrent>
+        </Breadcrumbs>
         <Title>Manage lists</Title>
         <Counter>{lists.length} lists</Counter>
         <TableContainer>
           <Table>
             <Thead>
               <tr>
-                <Th><Checkbox type="checkbox" checked={allSelected} onChange={handleSelectAll} /></Th>
+                <Th><Checkbox type="checkbox" ref={selectAllRef} checked={allSelected} onChange={handleSelectAll} /></Th>
                 <SortableTh onClick={() => handleSort('name')}>
-                  Name <SortCaret field="name" sortField={sortField} sortDirection={sortDirection} />
+                  Name <SortIcon field="name" sortField={sortField} sortDirection={sortDirection} />
                 </SortableTh>
                 <SortableTh onClick={() => handleSort('type')}>
-                  Type <SortCaret field="type" sortField={sortField} sortDirection={sortDirection} />
+                  Type <SortIcon field="type" sortField={sortField} sortDirection={sortDirection} />
                 </SortableTh>
                 <SortableTh onClick={() => handleSort('status')}>
-                  Status <SortCaret field="status" sortField={sortField} sortDirection={sortDirection} />
+                  Status <SortIcon field="status" sortField={sortField} sortDirection={sortDirection} />
                 </SortableTh>
                 <SortableTh onClick={() => handleSort('lastUpdated')}>
-                  Last updated <SortCaret field="lastUpdated" sortField={sortField} sortDirection={sortDirection} />
+                  Last updated <SortIcon field="lastUpdated" sortField={sortField} sortDirection={sortDirection} />
                 </SortableTh>
                 <Th></Th>
               </tr>
@@ -373,7 +462,7 @@ function ManageLists({ lists, onEditList, onDone }) {
                   </Td>
                   <Td>
                     <StatusTag $status={getStatus(list)}>
-                      {getStatus(list) === 'active' ? 'Active' : 'Deactive'}
+                      {getStatus(list) === 'active' ? 'Active' : 'Inactive'}
                     </StatusTag>
                   </Td>
                   <Td>{list.lastUpdated || 'May 19, 2026'}</Td>
@@ -387,12 +476,20 @@ function ManageLists({ lists, onEditList, onDone }) {
                           <OverflowMenuItem onClick={() => { setOpenMenuId(null); onEditList(list) }}>
                             Edit
                           </OverflowMenuItem>
-                          <OverflowMenuItem onClick={() => setOpenMenuId(null)}>
-                            Deactivate
-                          </OverflowMenuItem>
-                          <OverflowMenuItem $destructive onClick={() => setOpenMenuId(null)}>
-                            Delete
-                          </OverflowMenuItem>
+                          {getStatus(list) === 'active' ? (
+                            <OverflowMenuItem onClick={() => { setOpenMenuId(null); setDeactivateTargetIds([list.id]); setShowDeactivateModal(true) }}>
+                              Deactivate
+                            </OverflowMenuItem>
+                          ) : (
+                            <>
+                              <OverflowMenuItem onClick={() => { setOpenMenuId(null); onActivateLists?.([list.id]) }}>
+                                Activate
+                              </OverflowMenuItem>
+                              <OverflowMenuItem $destructive onClick={() => { setOpenMenuId(null); setDeleteTargetIds([list.id]); setShowDeleteModal(true) }}>
+                                Delete
+                              </OverflowMenuItem>
+                            </>
+                          )}
                         </OverflowMenu>
                       )}
                     </OverflowWrapper>
@@ -404,8 +501,107 @@ function ManageLists({ lists, onEditList, onDone }) {
         </TableContainer>
       </ContentArea>
       <BottomBar>
-        <DoneButton onClick={onDone}>Done</DoneButton>
+        {selectedIds.length > 0 ? (
+          <>
+            <BottomBarLeft>
+              <SelectedCount>{selectedIds.length} selected</SelectedCount>
+              {selectedIds.some(id => getStatus(lists.find(l => l.id === id)) === 'active') && (
+                <BottomBarAction onClick={() => { setDeactivateTargetIds(selectedIds.filter(id => getStatus(lists.find(l => l.id === id)) === 'active')); setShowDeactivateModal(true) }}>Deactivate</BottomBarAction>
+              )}
+              {selectedIds.some(id => getStatus(lists.find(l => l.id === id)) !== 'active') && (
+                <BottomBarAction onClick={() => {
+                  const ids = selectedIds.filter(id => getStatus(lists.find(l => l.id === id)) !== 'active')
+                  onActivateLists?.(ids)
+                }}>Activate</BottomBarAction>
+              )}
+              {selectedIds.some(id => getStatus(lists.find(l => l.id === id)) !== 'active') && (
+                <BottomBarAction $destructive onClick={() => { setDeleteTargetIds(selectedIds.filter(id => getStatus(lists.find(l => l.id === id)) !== 'active')); setShowDeleteModal(true) }}>Delete</BottomBarAction>
+              )}
+            </BottomBarLeft>
+            <ClearSelection onClick={() => setSelectedIds([])}>Clear selection</ClearSelection>
+          </>
+        ) : (
+          <SaveButton onClick={onDone} style={{ marginLeft: 'auto' }}>Save</SaveButton>
+        )}
       </BottomBar>
+      {showDeactivateModal && (
+        <Modal onClose={() => setShowDeactivateModal(false)}>
+          <ModalHeader>
+            Deactivate customer list{deactivateTargetIds.length > 1 ? 's' : ''}
+          </ModalHeader>
+          <ModalBody>
+            {deactivateTargetIds.length === 1 ? (
+              <>You are deactivating <strong>{lists.find(l => l.id === deactivateTargetIds[0])?.label}</strong>. It will become unavailable for use, but you can reactivate or delete it at any time.</>
+            ) : (
+              <>
+                The following items will be deactivated. They will become unavailable for use, but you can reactivate or delete them at any time.
+                <ModalList>
+                  {deactivateTargetIds.map(id => {
+                    const list = lists.find(l => l.id === id)
+                    return <li key={id}>{list?.label}</li>
+                  })}
+                </ModalList>
+              </>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <FooterItem>
+              <Button isBasic onClick={() => setShowDeactivateModal(false)}>
+                Cancel
+              </Button>
+            </FooterItem>
+            <FooterItem>
+              <Button isPrimary onClick={() => {
+                onDeactivateLists?.(deactivateTargetIds)
+                setShowDeactivateModal(false)
+                setSelectedIds(selectedIds.filter(id => !deactivateTargetIds.includes(id)))
+              }}>
+                Deactivate
+              </Button>
+            </FooterItem>
+          </ModalFooter>
+          <Close aria-label="Close modal" />
+        </Modal>
+      )}
+      {showDeleteModal && (
+        <Modal onClose={() => setShowDeleteModal(false)} isDanger>
+          <ModalHeader isDanger>
+            Delete customer list{deleteTargetIds.length > 1 ? 's' : ''}
+          </ModalHeader>
+          <ModalBody>
+            {deleteTargetIds.length === 1 ? (
+              <>You are permanently deleting <strong>{lists.find(l => l.id === deleteTargetIds[0])?.label}</strong>. You will have to create it again after it has been deleted.</>
+            ) : (
+              <>
+                You are permanently deleting the following customer lists. They will have to be created again.
+                <ModalList>
+                  {deleteTargetIds.map(id => {
+                    const list = lists.find(l => l.id === id)
+                    return <li key={id}>{list?.label}</li>
+                  })}
+                </ModalList>
+              </>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <FooterItem>
+              <Button isBasic onClick={() => setShowDeleteModal(false)}>
+                Cancel
+              </Button>
+            </FooterItem>
+            <FooterItem>
+              <Button isDanger isPrimary onClick={() => {
+                onDeleteLists?.(deleteTargetIds)
+                setShowDeleteModal(false)
+                setSelectedIds(selectedIds.filter(id => !deleteTargetIds.includes(id)))
+              }}>
+                Delete
+              </Button>
+            </FooterItem>
+          </ModalFooter>
+          <Close aria-label="Close modal" />
+        </Modal>
+      )}
     </PageWrapper>
   )
 }

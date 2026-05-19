@@ -195,6 +195,7 @@ function CustomerListsPage() {
   const [lists, setLists] = useState(defaultLists)
   const [view, setView] = useState('list')
   const [editingList, setEditingList] = useState(null)
+  const [cameFromManage, setCameFromManage] = useState(false)
   const [actionsOpen, setActionsOpen] = useState(false)
   const [notification, setNotification] = useState(null)
   const actionsRef = useRef(null)
@@ -226,19 +227,22 @@ function CustomerListsPage() {
   const handleSaveList = ({ name, access, conditions }) => {
     if (editingList) {
       setLists(lists.map(l => l.id === editingList.id ? { ...l, label: name, access, conditions } : l))
-      setView('list')
+      setView(cameFromManage ? 'manage' : 'list')
+      setCameFromManage(false)
       setNotification('Customer list updated')
     } else {
-      const id = name.toLowerCase().replace(/\s+/g, '-')
+      const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now()
       setLists([...lists, { id, label: name, section: 'shared', access, conditions }])
       setActiveList(id)
-      setView('list')
+      setView(cameFromManage ? 'manage' : 'list')
+      setCameFromManage(false)
       setNotification('Customer list created')
     }
   }
 
   const handleCancelCreate = () => {
-    setView('list')
+    setView(cameFromManage ? 'manage' : 'list')
+    setCameFromManage(false)
   }
 
   const handleManageLists = () => {
@@ -247,6 +251,7 @@ function CustomerListsPage() {
 
   const handleEditFromManage = (list) => {
     setEditingList(list)
+    setCameFromManage(true)
     setView('create')
   }
 
@@ -263,7 +268,7 @@ function CustomerListsPage() {
       )}
       <CustomerListsSidebar
         activeList={activeList}
-        onSelectList={setActiveList}
+        onSelectList={(id) => { setActiveList(id); setView('list'); setCameFromManage(false) }}
         lists={lists}
         onCreateList={handleCreateList}
         onManageLists={handleManageLists}
@@ -273,32 +278,58 @@ function CustomerListsPage() {
           lists={lists}
           onEditList={handleEditFromManage}
           onDone={() => setView('list')}
+          onNavigateHome={() => { setActiveList('all'); setView('list') }}
+          onDeactivateLists={(ids) => {
+            setLists(lists.map(l => ids.includes(l.id) ? { ...l, status: 'deactivated' } : l))
+            setNotification('Customer list' + (ids.length > 1 ? 's' : '') + ' deactivated')
+          }}
+          onActivateLists={(ids) => {
+            setLists(lists.map(l => ids.includes(l.id) ? { ...l, status: 'active' } : l))
+            setNotification('Customer list' + (ids.length > 1 ? 's' : '') + ' activated')
+          }}
+          onDeleteLists={(ids) => {
+            setLists(lists.filter(l => !ids.includes(l.id)))
+            setNotification('Customer list' + (ids.length > 1 ? 's' : '') + ' deleted')
+          }}
         />
       ) : view === 'create' ? (
         <CreateCustomerList
+          key={editingList?.id || 'new'}
           onSave={handleSaveList}
           onCancel={handleCancelCreate}
           initialName={editingList?.label || ''}
           initialAccess={editingList?.access || 'any'}
           initialConditions={editingList?.conditions || null}
           isEditing={!!editingList}
+          status={editingList?.status || 'active'}
+          cameFromManage={cameFromManage}
+          onNavigateHome={() => { setActiveList('all'); setView('list'); setCameFromManage(false) }}
+          onNavigateManage={() => { setView('manage'); setCameFromManage(false) }}
           onDelete={() => {
             setLists(lists.filter(l => l.id !== editingList.id))
             setActiveList('all')
-            setView('list')
+            setView('manage')
+            setCameFromManage(false)
             setNotification('Customer list deleted')
           }}
           onClone={() => {
             const clonedName = `${editingList.label} (copy)`
-            const clonedId = clonedName.toLowerCase().replace(/\s+/g, '-')
-            setLists([...lists, { ...editingList, id: clonedId, label: clonedName }])
+            const clonedId = clonedName.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now()
+            const clonedList = { ...editingList, id: clonedId, label: clonedName }
+            setLists([...lists, clonedList])
             setActiveList(clonedId)
-            setView('list')
+            setEditingList(clonedList)
             setNotification('Customer list cloned')
           }}
           onDeactivate={() => {
-            setView('list')
+            setLists(lists.map(l => l.id === editingList.id ? { ...l, status: 'deactivated' } : l))
+            setEditingList({ ...editingList, status: 'deactivated' })
             setNotification('Customer list deactivated')
+          }}
+          onActivate={() => {
+            setLists(lists.map(l => l.id === editingList.id ? { ...l, status: 'active' } : l))
+            setEditingList({ ...editingList, status: 'active' })
+            setNotification('Customer list activated')
           }}
         />
       ) : (
@@ -317,41 +348,60 @@ function CustomerListsPage() {
                 <ActionsButton isBasic onClick={() => setActionsOpen(!actionsOpen)}>
                   Actions <ChevronDownIcon />
                 </ActionsButton>
-                {actionsOpen && (
+                {actionsOpen && (() => {
+                  const currentList = lists.find(l => l.id === activeList)
+                  const isActive = (currentList?.status || 'active') === 'active'
+                  return (
                   <ActionsDropdown>
                     <ActionsDropdownItem onClick={handleEditList}>
                       Edit
                     </ActionsDropdownItem>
                     <ActionsDropdownItem onClick={() => {
                       setActionsOpen(false)
-                      const currentList = lists.find(l => l.id === activeList)
                       const clonedName = `${currentList.label} (copy)`
-                      const clonedId = clonedName.toLowerCase().replace(/\s+/g, '-')
+                      const clonedId = clonedName.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now()
                       setLists([...lists, { ...currentList, id: clonedId, label: clonedName }])
                       setActiveList(clonedId)
                       setNotification('Customer list cloned')
                     }}>
                       Clone
                     </ActionsDropdownItem>
-                    <ActionsDropdownItem onClick={() => {
-                      setActionsOpen(false)
-                      setNotification('Customer list deactivated')
-                    }}>
-                      Deactivate
+                    {isActive ? (
+                      <ActionsDropdownItem onClick={() => {
+                        setActionsOpen(false)
+                        setLists(lists.map(l => l.id === activeList ? { ...l, status: 'deactivated' } : l))
+                        setNotification('Customer list deactivated')
+                      }}>
+                        Deactivate
+                      </ActionsDropdownItem>
+                    ) : (
+                      <ActionsDropdownItem onClick={() => {
+                        setActionsOpen(false)
+                        setLists(lists.map(l => l.id === activeList ? { ...l, status: 'active' } : l))
+                        setNotification('Customer list activated')
+                      }}>
+                        Activate
+                      </ActionsDropdownItem>
+                    )}
+                    <ActionsDropdownItem onClick={() => setActionsOpen(false)}>
+                      Export to CSV
                     </ActionsDropdownItem>
                     <ActionsDropdownItem onClick={() => setActionsOpen(false)}>
                       Bulk import
                     </ActionsDropdownItem>
-                    <ActionsDropdownItem $destructive onClick={() => {
-                      setActionsOpen(false)
-                      setLists(lists.filter(l => l.id !== activeList))
-                      setActiveList('all')
-                      setNotification('Customer list deleted')
-                    }}>
-                      Delete
-                    </ActionsDropdownItem>
+                    {!isActive && (
+                      <ActionsDropdownItem $destructive onClick={() => {
+                        setActionsOpen(false)
+                        setLists(lists.filter(l => l.id !== activeList))
+                        setActiveList('all')
+                        setNotification('Customer list deleted')
+                      }}>
+                        Delete
+                      </ActionsDropdownItem>
+                    )}
                   </ActionsDropdown>
-                )}
+                  )
+                })()}
               </ActionsWrapper>
             ) : (
               <BulkImportButton isBasic>

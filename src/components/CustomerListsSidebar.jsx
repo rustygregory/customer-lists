@@ -186,8 +186,8 @@ function CustomerListsSidebar({ activeList, onSelectList, lists, onCreateList, o
         <TitleWrapper ref={dropdownRef}>
           <SidebarTitle onClick={() => setDropdownOpen(!dropdownOpen)}>
             Customer Lists
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M3 4L5 6L7 4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M4 5.5L7 8.5L10 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </SidebarTitle>
           {dropdownOpen && (
@@ -220,7 +220,7 @@ function CustomerListsSidebar({ activeList, onSelectList, lists, onCreateList, o
         </ListItem>
 
         <SectionLabel>Shared lists</SectionLabel>
-        {lists.filter(l => l.section === 'shared').map(list => (
+        {lists.filter(l => l.access !== 'only-you').map(list => (
           <ListItem
             key={list.id}
             $active={activeList === list.id}
@@ -229,6 +229,21 @@ function CustomerListsSidebar({ activeList, onSelectList, lists, onCreateList, o
             {list.label}
           </ListItem>
         ))}
+
+        {lists.some(l => l.access === 'only-you') && (
+          <>
+            <SectionLabel>Personal lists</SectionLabel>
+            {lists.filter(l => l.access === 'only-you').map(list => (
+              <ListItem
+                key={list.id}
+                $active={activeList === list.id}
+                onClick={() => onSelectList(list.id)}
+              >
+                {list.label}
+              </ListItem>
+            ))}
+          </>
+        )}
       </ListSection>
 
       <BottomSection>

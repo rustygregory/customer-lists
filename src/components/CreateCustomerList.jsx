@@ -112,7 +112,7 @@ const RadioInput = styled.input`
 
 const GroupsContainer = styled.div`
   margin-top: 12px;
-  margin-left: 12px;
+  margin-left: 26px;
   width: 430px;
 `
 

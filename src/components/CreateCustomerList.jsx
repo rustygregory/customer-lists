@@ -109,6 +109,116 @@ const RadioInput = styled.input`
   cursor: pointer;
 `
 
+const GroupsContainer = styled.div`
+  margin-top: 12px;
+  margin-left: 26px;
+  width: 430px;
+`
+
+const GroupsLabel = styled.label`
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2f3941;
+  margin-bottom: 8px;
+`
+
+const GroupsInputWrapper = styled.div`
+  position: relative;
+`
+
+const GroupsInput = styled.input`
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d8dcde;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #2f3941;
+  outline: none;
+
+  &:focus {
+    border-color: #1f73b7;
+    box-shadow: 0 0 0 3px rgba(31, 115, 183, 0.15);
+  }
+`
+
+const GroupsDropdownMenu = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #d8dcde;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px 0;
+`
+
+const GroupsDropdownItem = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #2f3941;
+  background: ${props => props.$selected ? '#edf7ff' : 'none'};
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background: ${props => props.$selected ? '#dceefb' : '#f8f9f9'};
+  }
+`
+
+const GroupCheckbox = styled.span`
+  width: 16px;
+  height: 16px;
+  border: 1px solid ${props => props.$checked ? '#1f73b7' : '#d8dcde'};
+  border-radius: 3px;
+  background: ${props => props.$checked ? '#1f73b7' : '#ffffff'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+`
+
+const GroupsTags = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+`
+
+const GroupTag = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #e9ebed;
+  color: #49545c;
+`
+
+const GroupTagRemove = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #68737d;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    color: #2f3941;
+  }
+`
+
 const ConditionsSubtitle = styled.p`
   font-size: 14px;
   font-weight: 600;
@@ -201,6 +311,19 @@ const tagValueOptions = [
   { value: 'bronze', label: 'Bronze' },
   { value: 'nickle', label: 'Nickle' },
   { value: 'pewter', label: 'Pewter' },
+]
+
+const availableGroups = [
+  { value: 'support', label: 'Support' },
+  { value: 'sales', label: 'Sales' },
+  { value: 'engineering', label: 'Engineering' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'operations', label: 'Operations' },
+  { value: 'product', label: 'Product' },
+  { value: 'design', label: 'Design' },
+  { value: 'hr', label: 'Human Resources' },
+  { value: 'legal', label: 'Legal' },
 ]
 
 const AddConditionButton = styled.button`
@@ -458,7 +581,11 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
   const [showDeleteError, setShowDeleteError] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [actionsOpen, setActionsOpen] = useState(false)
+  const [selectedGroups, setSelectedGroups] = useState([])
+  const [groupsDropdownOpen, setGroupsDropdownOpen] = useState(false)
+  const [groupsSearch, setGroupsSearch] = useState('')
   const actionsRef = useRef(null)
+  const groupsRef = useRef(null)
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -471,6 +598,18 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [actionsOpen])
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (groupsRef.current && !groupsRef.current.contains(e.target)) {
+        setGroupsDropdownOpen(false)
+      }
+    }
+    if (groupsDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [groupsDropdownOpen])
 
   const handleAddCondition = () => {
     setConditions([...conditions, { category: '', operator: '', value: '' }])
@@ -595,6 +734,64 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
               />
               Agents in specific groups
             </RadioLabel>
+            {access === 'specific-groups' && (
+              <GroupsContainer ref={groupsRef}>
+                <GroupsLabel>Groups</GroupsLabel>
+                <GroupsInputWrapper>
+                  <GroupsInput
+                    placeholder="Search groups"
+                    value={groupsSearch}
+                    onChange={(e) => setGroupsSearch(e.target.value)}
+                    onFocus={() => setGroupsDropdownOpen(true)}
+                  />
+                  {groupsDropdownOpen && (
+                    <GroupsDropdownMenu>
+                      {availableGroups
+                        .filter(g => g.label.toLowerCase().includes(groupsSearch.toLowerCase()))
+                        .map(group => (
+                          <GroupsDropdownItem
+                            key={group.value}
+                            $selected={selectedGroups.includes(group.value)}
+                            onClick={() => {
+                              if (selectedGroups.includes(group.value)) {
+                                setSelectedGroups(selectedGroups.filter(g => g !== group.value))
+                              } else {
+                                setSelectedGroups([...selectedGroups, group.value])
+                              }
+                            }}
+                          >
+                            <GroupCheckbox $checked={selectedGroups.includes(group.value)}>
+                              {selectedGroups.includes(group.value) && (
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                  <path d="M2 5L4 7L8 3" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </GroupCheckbox>
+                            {group.label}
+                          </GroupsDropdownItem>
+                        ))}
+                    </GroupsDropdownMenu>
+                  )}
+                </GroupsInputWrapper>
+                {selectedGroups.length > 0 && (
+                  <GroupsTags>
+                    {selectedGroups.map(gValue => {
+                      const group = availableGroups.find(g => g.value === gValue)
+                      return (
+                        <GroupTag key={gValue}>
+                          {group?.label}
+                          <GroupTagRemove onClick={() => setSelectedGroups(selectedGroups.filter(g => g !== gValue))}>
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                              <path d="M8 2L2 8M2 2l6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            </svg>
+                          </GroupTagRemove>
+                        </GroupTag>
+                      )
+                    })}
+                  </GroupsTags>
+                )}
+              </GroupsContainer>
+            )}
           </RadioGroup>
         </div>
 

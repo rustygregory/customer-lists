@@ -12,6 +12,7 @@
   "dependencies": {
     "@zendeskgarden/react-avatars": "^9.15.4",
     "@zendeskgarden/react-buttons": "^9.15.4",
+    "@zendeskgarden/react-dropdowns": "^9.15.4",
     "@zendeskgarden/react-forms": "^9.15.4",
     "@zendeskgarden/react-modals": "^9.15.4",
     "@zendeskgarden/react-notifications": "^9.15.4",

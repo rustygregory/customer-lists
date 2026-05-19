@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 const SidebarContainer = styled.div`
@@ -29,54 +29,10 @@ const SidebarHeader = styled.div`
   padding-bottom: 12px;
 `
 
-const TitleWrapper = styled.div`
-  position: relative;
-`
-
-const SidebarTitle = styled.button`
+const SidebarTitle = styled.span`
   font-size: 14px;
   font-weight: 600;
   color: #2f3941;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-
-  &:hover {
-    color: #1f73b7;
-  }
-`
-
-const Dropdown = styled.div`
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  background: #ffffff;
-  border: 1px solid #d8dcde;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  min-width: 180px;
-  padding: 4px 0;
-`
-
-const DropdownItem = styled.button`
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 10px 16px;
-  font-size: 14px;
-  color: #2f3941;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  &:hover {
-    background: #f8f9f9;
-  }
 `
 
 const SidebarActions = styled.div`
@@ -164,43 +120,11 @@ const CollapseIcon = () => (
   </svg>
 )
 
-function CustomerListsSidebar({ activeList, onSelectList, lists, onCreateList, onManageLists }) {
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false)
-      }
-    }
-    if (dropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [dropdownOpen])
-
+function CustomerListsSidebar({ activeList, onSelectList, lists }) {
   return (
     <SidebarContainer>
       <SidebarHeader>
-        <TitleWrapper ref={dropdownRef}>
-          <SidebarTitle onClick={() => setDropdownOpen(!dropdownOpen)}>
-            Customer Lists
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M3 4L5 6L7 4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </SidebarTitle>
-          {dropdownOpen && (
-            <Dropdown>
-              <DropdownItem onClick={() => { setDropdownOpen(false); onCreateList?.() }}>
-                Create a list
-              </DropdownItem>
-              <DropdownItem onClick={() => { setDropdownOpen(false); onManageLists?.() }}>
-                Manage lists
-              </DropdownItem>
-            </Dropdown>
-          )}
-        </TitleWrapper>
+        <SidebarTitle>Customer Lists</SidebarTitle>
         <SidebarActions>
           <IconButton title="Refresh">
             <RefreshIcon />

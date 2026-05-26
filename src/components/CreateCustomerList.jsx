@@ -712,7 +712,7 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
         <Section>
           <SectionTitle>Conditions</SectionTitle>
           <SectionDescription>
-            Conditions must be met for the schedule to delete end users who have no open tickets.
+            Use conditions to determine which customers appear in this list.
           </SectionDescription>
           <ConditionsSubtitle>Meet ALL of the following conditions</ConditionsSubtitle>
           {conditions.map((condition, index) => (

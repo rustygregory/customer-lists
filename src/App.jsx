@@ -21,7 +21,7 @@ const ContentRow = styled.div`
   min-height: 0;
   width: 100%;
   z-index: 1;
-  overflow: hidden;
+  overflow: clip;
 `
 
 const MainContent = styled.main`
@@ -37,7 +37,7 @@ const MainContent = styled.main`
   border-radius: 8px 0px 0px 0px;
   flex: 1;
   align-self: stretch;
-  overflow: hidden;
+  overflow: clip;
   min-height: 0;
 `
 

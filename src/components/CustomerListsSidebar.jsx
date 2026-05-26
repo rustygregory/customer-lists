@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 const SidebarContainer = styled.div`
@@ -29,54 +29,11 @@ const SidebarHeader = styled.div`
   padding-bottom: 12px;
 `
 
-const TitleWrapper = styled.div`
-  position: relative;
-`
-
-const SidebarTitle = styled.button`
+const SidebarTitle = styled.h2`
   font-size: 14px;
   font-weight: 600;
   color: #2f3941;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-
-  &:hover {
-    color: #1f73b7;
-  }
-`
-
-const Dropdown = styled.div`
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  background: #ffffff;
-  border: 1px solid #d8dcde;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  min-width: 180px;
-  padding: 4px 0;
-`
-
-const DropdownItem = styled.button`
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 10px 16px;
-  font-size: 14px;
-  color: #2f3941;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  &:hover {
-    background: #f8f9f9;
-  }
+  margin: 0;
 `
 
 const SidebarActions = styled.div`
@@ -147,14 +104,42 @@ const ListItem = styled.div`
 `
 
 const BottomSection = styled.div`
-  border-top: 1px solid #e9ebed;
-  padding: 8px 0;
+  padding: 8px 0 32px;
 `
 
+const BottomDivider = styled.div`
+  border-top: 1px solid #e9ebed;
+  margin: 0 20px 8px;
+`
+
+const ManageLink = styled.button`
+  font-size: 13px;
+  color: #1f73b7;
+  text-decoration: underline;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: #144a75;
+  }
+`
+
+const AddIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M8 5v6M5 8h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+  </svg>
+)
+
 const RefreshIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M14 2v4h-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M13.19 10A6 6 0 1 1 14.32 5.5L14 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <path d="M2 8a6 6 0 0111.5-2.5M14 8a6 6 0 01-11.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M14 3v2.5h-2.5M2 13v-2.5h2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )
 
@@ -165,43 +150,14 @@ const CollapseIcon = () => (
 )
 
 function CustomerListsSidebar({ activeList, onSelectList, lists, onCreateList, onManageLists }) {
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false)
-      }
-    }
-    if (dropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [dropdownOpen])
-
   return (
     <SidebarContainer>
       <SidebarHeader>
-        <TitleWrapper ref={dropdownRef}>
-          <SidebarTitle onClick={() => setDropdownOpen(!dropdownOpen)}>
-            Customer Lists
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M4 5.5L7 8.5L10 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </SidebarTitle>
-          {dropdownOpen && (
-            <Dropdown>
-              <DropdownItem onClick={() => { setDropdownOpen(false); onCreateList?.() }}>
-                Create a list
-              </DropdownItem>
-              <DropdownItem onClick={() => { setDropdownOpen(false); onManageLists?.() }}>
-                Manage lists
-              </DropdownItem>
-            </Dropdown>
-          )}
-        </TitleWrapper>
+        <SidebarTitle>Customer Lists</SidebarTitle>
         <SidebarActions>
+          <IconButton title="Add new customer list" onClick={onCreateList}>
+            <AddIcon />
+          </IconButton>
           <IconButton title="Refresh">
             <RefreshIcon />
           </IconButton>
@@ -247,9 +203,13 @@ function CustomerListsSidebar({ activeList, onSelectList, lists, onCreateList, o
       </ListSection>
 
       <BottomSection>
+        <BottomDivider />
         <ListItem onClick={() => {}}>
           Suspended users
         </ListItem>
+        <ManageLink onClick={onManageLists}>
+          Manage customer lists
+        </ManageLink>
       </BottomSection>
     </SidebarContainer>
   )

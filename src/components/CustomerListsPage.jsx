@@ -16,7 +16,7 @@ const PageLayout = styled.div`
   width: 100%;
   height: 100%;
   min-height: 0;
-  overflow: hidden;
+  overflow: clip;
 `
 
 const MainArea = styled.div`
@@ -188,10 +188,8 @@ const CustomerCount = styled.div`
 `
 
 const ExternalLinkIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M9 6.5V9.5C9 10.0523 8.55228 10.5 8 10.5H2.5C1.94772 10.5 1.5 10.0523 1.5 9.5V4C1.5 3.44772 1.94772 3 2.5 3H5.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M7.5 1.5H10.5V4.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M5 7L10.5 1.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+    <path stroke="currentColor" strokeLinecap="round" d="M10.5 8.5V10c0 .3-.2.5-.5.5H2c-.3 0-.5-.2-.5-.5V2c0-.3.2-.5.5-.5h1.5M6 6l4-4m-3.5-.5H10c.3 0 .5.2.5.5v3.5"/>
   </svg>
 )
 
@@ -213,7 +211,7 @@ const defaultLists = [
   { id: 'gold', label: 'Gold members', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'gold' }] },
   { id: 'mylist', label: 'My list test', section: 'shared', access: 'only-you', conditions: [{ category: 'tag', operator: 'is', value: 'gold' }] },
   { id: 'test2', label: 'Test II', section: 'shared', access: 'any', conditions: [{ category: '', operator: '', value: '' }] },
-  { id: 'again', label: 'Again a test', section: 'shared', access: 'specific-groups', conditions: [{ category: 'tag', operator: 'is', value: 'diamond' }] },
+  { id: 'again', label: 'Again a test', section: 'shared', access: 'specific-groups', groups: ['support'], conditions: [{ category: 'tag', operator: 'is', value: 'diamond' }] },
 ]
 
 function CustomerListsPage() {
@@ -253,15 +251,15 @@ function CustomerListsPage() {
     setView('create')
   }
 
-  const handleSaveList = ({ name, access, conditions }) => {
+  const handleSaveList = ({ name, access, conditions, groups }) => {
     if (editingList) {
-      setLists(lists.map(l => l.id === editingList.id ? { ...l, label: name, access, conditions } : l))
+      setLists(lists.map(l => l.id === editingList.id ? { ...l, label: name, access, conditions, groups } : l))
       setView(cameFromManage ? 'manage' : 'list')
       setCameFromManage(false)
       setNotification('Customer list updated')
     } else {
       const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now()
-      setLists([...lists, { id, label: name, section: 'shared', access, conditions }])
+      setLists([...lists, { id, label: name, section: 'shared', access, conditions, groups }])
       setActiveList(id)
       setView(cameFromManage ? 'manage' : 'list')
       setCameFromManage(false)
@@ -329,6 +327,7 @@ function CustomerListsPage() {
           initialName={editingList?.label || ''}
           initialAccess={editingList?.access || 'any'}
           initialConditions={editingList?.conditions || null}
+          initialGroups={editingList?.groups || []}
           isEditing={!!editingList}
           status={editingList?.status || 'active'}
           cameFromManage={cameFromManage}

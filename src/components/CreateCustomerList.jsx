@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { Button } from '@zendeskgarden/react-buttons'
 import { Modal, Header as ModalHeader, Body as ModalBody, Footer as ModalFooter, FooterItem, Close } from '@zendeskgarden/react-modals'
-import { Notification, Title as NotifTitle, Paragraph, Close as NotifClose } from '@zendeskgarden/react-notifications'
+import { Notification, Title as NotifTitle, Paragraph, Close as NotifClose, Alert } from '@zendeskgarden/react-notifications'
 import { Combobox, Option, Field as ComboField, Label as ComboLabel } from '@zendeskgarden/react-dropdowns'
+import { Message } from '@zendeskgarden/react-forms'
 import ConditionSelect from './ConditionSelect'
 import { filterCustomers } from './filterCustomers'
 import { customersByList } from './CustomersTable'
@@ -14,6 +15,7 @@ const PageWrapper = styled.div`
   flex: 1;
   min-height: 0;
   width: 100%;
+  overflow: clip;
 `
 
 const FormArea = styled.div`
@@ -59,15 +61,15 @@ const NameInput = styled.input`
   width: 100%;
   max-width: 400px;
   padding: 10px 12px;
-  border: 1px solid #d8dcde;
+  border: 1px solid ${props => props.$error ? '#cc3340' : '#d8dcde'};
   border-radius: 4px;
   font-size: 14px;
   color: #2f3941;
   outline: none;
 
   &:focus {
-    border-color: #1f73b7;
-    box-shadow: 0 0 0 3px rgba(31, 115, 183, 0.15);
+    border-color: ${props => props.$error ? '#cc3340' : '#1f73b7'};
+    box-shadow: 0 0 0 3px ${props => props.$error ? 'rgba(204, 51, 64, 0.15)' : 'rgba(31, 115, 183, 0.15)'};
   }
 `
 
@@ -347,29 +349,29 @@ const BottomBar = styled.div`
 const CancelButton = styled.button`
   padding: 8px 16px;
   font-size: 14px;
-  color: #1f73b7;
+  color: #2f3941;
   background: none;
   border: none;
   cursor: pointer;
 
   &:hover {
-    color: #144a75;
+    color: #49545c;
   }
 `
 
 const SaveButton = styled.button`
   height: 40px;
-  padding: 0 20px;
+  padding: 0 28px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   color: #ffffff;
-  background: #1f73b7;
+  background: #2f3941;
   border: none;
-  border-radius: 4px;
+  border-radius: 100px;
   cursor: pointer;
 
   &:hover {
-    background: #144a75;
+    background: #49545c;
   }
 `
 
@@ -467,9 +469,15 @@ const ErrorNotificationWrapper = styled.div`
   z-index: 1100;
 `
 
+const GroupsAlertWrapper = styled.div`
+  max-width: 630px;
+  margin-top: 32px;
+  margin-bottom: 32px;
+`
+
 const allCustomers = customersByList.all
 
-function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate, onActivate, initialName = '', initialAccess = 'any', initialConditions = null, isEditing = false, status, cameFromManage, onNavigateHome, onNavigateManage }) {
+function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate, onActivate, initialName = '', initialAccess = 'any', initialConditions = null, initialGroups = [], isEditing = false, status, cameFromManage, onNavigateHome, onNavigateManage }) {
   const [name, setName] = useState(initialName)
   const [access, setAccess] = useState(initialAccess)
   const [conditions, setConditions] = useState(initialConditions || [{ category: '', operator: '', value: '' }])
@@ -478,9 +486,20 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
   const [showDeleteError, setShowDeleteError] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [actionsOpen, setActionsOpen] = useState(false)
-  const [selectedGroups, setSelectedGroups] = useState([])
-  const [groupsSearch, setGroupsSearch] = useState('')
+  const [selectedGroups, setSelectedGroups] = useState(initialGroups)
+  const [groupsSearch, setGroupsSearch] = useState(() => {
+    if (initialGroups.length > 0) {
+      const group = availableGroups.find(g => g.value === initialGroups[0])
+      return group ? group.label : ''
+    }
+    return ''
+  })
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertErrors, setAlertErrors] = useState([])
+  const [groupsValidationError, setGroupsValidationError] = useState(false)
+  const [nameValidationError, setNameValidationError] = useState(false)
   const actionsRef = useRef(null)
+
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -500,9 +519,21 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
   }
 
   const handleSave = () => {
-    if (name.trim()) {
-      onSave({ name: name.trim(), access, conditions })
+    const errors = []
+    if (!name.trim()) {
+      setNameValidationError(true)
+      errors.push('name')
     }
+    if (access === 'specific-groups' && selectedGroups.length === 0) {
+      setGroupsValidationError(true)
+      errors.push('group')
+    }
+    if (errors.length > 0) {
+      setAlertErrors(errors)
+      setShowAlert(true)
+      return
+    }
+    onSave({ name: name.trim(), access, conditions, groups: selectedGroups })
   }
 
   return (
@@ -577,13 +608,40 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
           )}
         </FormHeader>
 
+        {showAlert && (
+          <GroupsAlertWrapper>
+            <Alert type="error">
+              <Alert.Title>Can't create customer list</Alert.Title>
+              {alertErrors.length > 1 ? (
+                <Alert.Paragraph>
+                  <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+                    {alertErrors.includes('name') && <li>Add a name</li>}
+                    {alertErrors.includes('group') && <li>You must select which group has access</li>}
+                  </ul>
+                </Alert.Paragraph>
+              ) : (
+                <Alert.Paragraph>
+                  {alertErrors.includes('name') ? 'Add a name' : 'You must select which group has access'}
+                </Alert.Paragraph>
+              )}
+              <Alert.Close aria-label="Close" onClick={() => setShowAlert(false)} />
+            </Alert>
+          </GroupsAlertWrapper>
+        )}
+
         <div>
           <FieldLabel>Name* (required)</FieldLabel>
           <NameInput
+            $error={nameValidationError}
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => { setName(e.target.value); if (e.target.value.trim()) setNameValidationError(false) }}
             autoFocus
           />
+          {nameValidationError && (
+            <div style={{ marginTop: '8px' }}>
+              <Message validation="error">Add a name</Message>
+            </div>
+          )}
 
           <FieldLabel style={{ marginTop: '24px' }}>Who has access</FieldLabel>
           <SectionDescription>Select who can see and use this list</SectionDescription>
@@ -594,7 +652,7 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
                 name="access"
                 value="any"
                 checked={access === 'any'}
-                onChange={() => setAccess('any')}
+                onChange={() => { setAccess('any'); setGroupsValidationError(false) }}
               />
               Any agent
             </RadioLabel>
@@ -604,7 +662,7 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
                 name="access"
                 value="only-you"
                 checked={access === 'only-you'}
-                onChange={() => setAccess('only-you')}
+                onChange={() => { setAccess('only-you'); setGroupsValidationError(false) }}
               />
               Only you
             </RadioLabel>
@@ -621,19 +679,20 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
             {access === 'specific-groups' && (
               <GroupsContainer>
                 <ComboField>
-                  <ComboLabel style={{ fontWeight: 400, fontSize: '14px' }}>Groups</ComboLabel>
+                  <ComboLabel style={{ fontWeight: 400, fontSize: '14px' }}>Select which group has access*</ComboLabel>
                   <Combobox
-                    isMultiselectable
                     isAutocomplete
                     inputValue={groupsSearch}
-                    selectionValue={selectedGroups}
+                    selectionValue={selectedGroups[0] || null}
+                    validation={groupsValidationError ? 'error' : undefined}
                     onChange={(changes) => {
                       if ('inputValue' in changes) {
                         setGroupsSearch(changes.inputValue || '')
                       }
                       if ('selectionValue' in changes) {
                         const val = changes.selectionValue
-                        setSelectedGroups(Array.isArray(val) ? val : val == null ? [] : [val])
+                        setSelectedGroups(val ? [val] : [])
+                        if (val) setGroupsValidationError(false)
                       }
                     }}
                   >
@@ -641,6 +700,9 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
                       <Option key={group.value} value={group.value} label={group.label} />
                     ))}
                   </Combobox>
+                  {groupsValidationError && (
+                    <Message validation="error" style={{ marginTop: '8px' }}>Select a group</Message>
+                  )}
                 </ComboField>
               </GroupsContainer>
             )}
@@ -773,7 +835,7 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
 
       <BottomBar>
         <CancelButton onClick={onCancel}>Cancel</CancelButton>
-        <SaveButton onClick={handleSave}>Save</SaveButton>
+        <SaveButton onClick={handleSave}>{isEditing ? 'Save' : 'Create'}</SaveButton>
       </BottomBar>
       {showDeactivateModal && (
         <Modal onClose={() => setShowDeactivateModal(false)}>

@@ -773,7 +773,7 @@ function CreateCustomerList({ onSave, onCancel, onDelete, onClone, onDeactivate,
         <Section>
           <SectionTitle>Preview list</SectionTitle>
           <SectionDescription>
-            Sample of the data this schedule will start deleting the next time it runs.
+            Preview of customers who will appear in this list.
           </SectionDescription>
           <PreviewContainer>
             {showPreview ? (() => {

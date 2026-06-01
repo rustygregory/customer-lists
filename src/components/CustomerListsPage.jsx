@@ -207,11 +207,11 @@ const ChevronDownIcon = () => (
 )
 
 const defaultLists = [
-  { id: 'last30', label: 'Users created within the last 30 days', section: 'shared', access: 'any', conditions: [{ category: 'created', operator: 'is', value: '' }], lastUpdated: 'May 28, 2026' },
+  { id: 'last30', label: 'Users created within the last 30 days', section: 'shared', access: 'any', conditions: [{ category: 'created', operator: 'is', value: '' }], lastUpdated: 'Apr 12, 2026' },
   { id: 'gold', label: 'Platinum members', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'platinum' }], lastUpdated: 'May 30, 2026' },
-  { id: 'mylist', label: 'High value customers', section: 'shared', access: 'only-you', conditions: [{ category: 'tag', operator: 'is', value: 'high-value' }], lastUpdated: 'Jun 1, 2026' },
-  { id: 'test2', label: 'Diamond value customers', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'diamond' }], lastUpdated: 'May 22, 2026' },
-  { id: 'again', label: 'My silver members', section: 'shared', access: 'specific-groups', groups: ['support'], conditions: [{ category: 'tag', operator: 'is', value: 'silver' }], lastUpdated: 'May 15, 2026' },
+  { id: 'mylist', label: 'High value customers', section: 'shared', access: 'only-you', conditions: [{ category: 'tag', operator: 'is', value: 'high-value' }], lastUpdated: 'May 3, 2026' },
+  { id: 'test2', label: 'Diamond value customers', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'diamond' }], lastUpdated: 'Mar 18, 2026' },
+  { id: 'again', label: 'My silver members', section: 'shared', access: 'specific-groups', groups: ['support'], conditions: [{ category: 'tag', operator: 'is', value: 'silver' }], lastUpdated: 'May 21, 2026' },
 ]
 
 function CustomerListsPage() {

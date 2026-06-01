@@ -208,10 +208,10 @@ const ChevronDownIcon = () => (
 
 const defaultLists = [
   { id: 'last30', label: 'Users created within the last 30 days', section: 'shared', access: 'any', conditions: [{ category: 'created', operator: 'is', value: '' }] },
-  { id: 'gold', label: 'Gold members', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'gold' }] },
-  { id: 'mylist', label: 'My list test', section: 'shared', access: 'only-you', conditions: [{ category: 'tag', operator: 'is', value: 'gold' }] },
-  { id: 'test2', label: 'Test II', section: 'shared', access: 'any', conditions: [{ category: '', operator: '', value: '' }] },
-  { id: 'again', label: 'Again a test', section: 'shared', access: 'specific-groups', groups: ['support'], conditions: [{ category: 'tag', operator: 'is', value: 'diamond' }] },
+  { id: 'gold', label: 'Platinum members', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'platinum' }] },
+  { id: 'mylist', label: 'High value customers', section: 'shared', access: 'only-you', conditions: [{ category: 'tag', operator: 'is', value: 'high-value' }] },
+  { id: 'test2', label: 'Diamond value customers', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'diamond' }] },
+  { id: 'again', label: 'My silver members', section: 'shared', access: 'specific-groups', groups: ['support'], conditions: [{ category: 'tag', operator: 'is', value: 'silver' }] },
 ]
 
 function CustomerListsPage() {

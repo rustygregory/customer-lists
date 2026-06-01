@@ -457,12 +457,20 @@ const OverflowIcon = () => (
 
 const SortIcon = ({ field, sortField, sortDirection }) => {
   const isActive = sortField === field
-  const color = '#68737d'
+  if (isActive) {
+    return (
+      <SortIconWrapper>
+        <span style={{ fontSize: '10px', color: '#2f3941' }}>
+          {sortDirection === 'asc' ? '▴' : '▾'}
+        </span>
+      </SortIconWrapper>
+    )
+  }
   return (
     <SortIconWrapper>
       <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M1 4.5L4 1.5L7 4.5" stroke={isActive && sortDirection === 'asc' ? '#2f3941' : color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M1 7.5L4 10.5L7 7.5" stroke={isActive && sortDirection === 'desc' ? '#2f3941' : color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M1 4.5L4 1.5L7 4.5" stroke="#68737d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M1 7.5L4 10.5L7 7.5" stroke="#68737d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     </SortIconWrapper>
   )

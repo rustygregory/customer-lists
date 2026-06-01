@@ -217,6 +217,8 @@ const availableGroups = [
   { value: 'billing', label: 'Billing' },
   { value: 'technical-support', label: 'Technical support' },
   { value: 'customer-success', label: 'Customer success' },
+  { value: 'vip-support', label: 'VIP support' },
+  { value: 'account-management', label: 'Account management' },
 ]
 
 const AddConditionButton = styled.button`

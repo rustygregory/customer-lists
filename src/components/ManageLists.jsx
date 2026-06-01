@@ -460,9 +460,13 @@ const SortIcon = ({ field, sortField, sortDirection }) => {
   if (isActive) {
     return (
       <SortIconWrapper>
-        <span style={{ fontSize: '10px', color: '#2f3941' }}>
-          {sortDirection === 'asc' ? '▴' : '▾'}
-        </span>
+        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {sortDirection === 'desc' ? (
+            <path d="M1 1L5 5L9 1" stroke="#2f3941" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          ) : (
+            <path d="M1 5L5 1L9 5" stroke="#2f3941" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          )}
+        </svg>
       </SortIconWrapper>
     )
   }

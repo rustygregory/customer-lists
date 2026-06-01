@@ -214,15 +214,9 @@ const tagValueOptions = [
 
 const availableGroups = [
   { value: 'support', label: 'Support' },
-  { value: 'sales', label: 'Sales' },
-  { value: 'engineering', label: 'Engineering' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'finance', label: 'Finance' },
-  { value: 'operations', label: 'Operations' },
-  { value: 'product', label: 'Product' },
-  { value: 'design', label: 'Design' },
-  { value: 'hr', label: 'Human Resources' },
-  { value: 'legal', label: 'Legal' },
+  { value: 'billing', label: 'Billing' },
+  { value: 'technical-support', label: 'Technical support' },
+  { value: 'customer-success', label: 'Customer success' },
 ]
 
 const AddConditionButton = styled.button`

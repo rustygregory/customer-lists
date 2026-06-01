@@ -207,11 +207,11 @@ const ChevronDownIcon = () => (
 )
 
 const defaultLists = [
-  { id: 'last30', label: 'Users created within the last 30 days', section: 'shared', access: 'any', conditions: [{ category: 'created', operator: 'is', value: '' }] },
-  { id: 'gold', label: 'Platinum members', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'platinum' }] },
-  { id: 'mylist', label: 'High value customers', section: 'shared', access: 'only-you', conditions: [{ category: 'tag', operator: 'is', value: 'high-value' }] },
-  { id: 'test2', label: 'Diamond value customers', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'diamond' }] },
-  { id: 'again', label: 'My silver members', section: 'shared', access: 'specific-groups', groups: ['support'], conditions: [{ category: 'tag', operator: 'is', value: 'silver' }] },
+  { id: 'last30', label: 'Users created within the last 30 days', section: 'shared', access: 'any', conditions: [{ category: 'created', operator: 'is', value: '' }], lastUpdated: 'May 28, 2026' },
+  { id: 'gold', label: 'Platinum members', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'platinum' }], lastUpdated: 'May 30, 2026' },
+  { id: 'mylist', label: 'High value customers', section: 'shared', access: 'only-you', conditions: [{ category: 'tag', operator: 'is', value: 'high-value' }], lastUpdated: 'Jun 1, 2026' },
+  { id: 'test2', label: 'Diamond value customers', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'diamond' }], lastUpdated: 'May 22, 2026' },
+  { id: 'again', label: 'My silver members', section: 'shared', access: 'specific-groups', groups: ['support'], conditions: [{ category: 'tag', operator: 'is', value: 'silver' }], lastUpdated: 'May 15, 2026' },
 ]
 
 function CustomerListsPage() {
@@ -252,14 +252,16 @@ function CustomerListsPage() {
   }
 
   const handleSaveList = ({ name, access, conditions, groups }) => {
+    const now = new Date()
+    const lastUpdated = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     if (editingList) {
-      setLists(lists.map(l => l.id === editingList.id ? { ...l, label: name, access, conditions, groups } : l))
+      setLists(lists.map(l => l.id === editingList.id ? { ...l, label: name, access, conditions, groups, lastUpdated } : l))
       setView(cameFromManage ? 'manage' : 'list')
       setCameFromManage(false)
       setNotification('Customer list updated')
     } else {
       const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now()
-      setLists([...lists, { id, label: name, section: 'shared', access, conditions, groups }])
+      setLists([...lists, { id, label: name, section: 'shared', access, conditions, groups, lastUpdated }])
       setActiveList(id)
       setView(cameFromManage ? 'manage' : 'list')
       setCameFromManage(false)

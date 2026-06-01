@@ -212,8 +212,8 @@ const defaultLists = [
   { id: 'mylist', label: 'High value customers', section: 'shared', access: 'only-you', conditions: [{ category: 'tag', operator: 'is', value: 'high-value' }], lastUpdated: 'May 3, 2026' },
   { id: 'test2', label: 'Diamond value customers', section: 'shared', access: 'any', conditions: [{ category: 'tag', operator: 'is', value: 'diamond' }], lastUpdated: 'Mar 18, 2026' },
   { id: 'again', label: 'My silver members', section: 'shared', access: 'specific-groups', groups: ['support'], conditions: [{ category: 'tag', operator: 'is', value: 'silver' }], lastUpdated: 'May 21, 2026' },
-  { id: 'churned', label: 'Churned accounts Q1', section: 'shared', access: 'any', status: 'deactivated', conditions: [{ category: 'tag', operator: 'is', value: 'churned' }], lastUpdated: 'Feb 4, 2026' },
-  { id: 'trial-expired', label: 'Expired trial users', section: 'shared', access: 'any', status: 'deactivated', conditions: [{ category: 'tag', operator: 'is', value: 'trial-expired' }], lastUpdated: 'Jan 19, 2026' },
+  { id: 'churned', label: 'Churned accounts Q1', section: 'shared', access: 'only-you', status: 'deactivated', conditions: [{ category: 'tag', operator: 'is', value: 'churned' }], lastUpdated: 'Feb 4, 2026' },
+  { id: 'trial-expired', label: 'Expired trial users', section: 'shared', access: 'only-you', status: 'deactivated', conditions: [{ category: 'tag', operator: 'is', value: 'trial-expired' }], lastUpdated: 'Jan 19, 2026' },
   { id: 'legacy-plan', label: 'Legacy plan customers', section: 'shared', access: 'specific-groups', groups: ['billing'], status: 'deactivated', conditions: [{ category: 'tag', operator: 'is', value: 'legacy' }], lastUpdated: 'Mar 7, 2026' },
 ]
 

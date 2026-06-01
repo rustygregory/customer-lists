@@ -469,7 +469,7 @@ const SortIcon = ({ field, sortField, sortDirection }) => {
 }
 
 function ManageLists({ lists, onEditList, onDone, onDeactivateLists, onActivateLists, onDeleteLists, onNavigateHome }) {
-  const [sortField, setSortField] = useState('type')
+  const [sortField, setSortField] = useState('name')
   const [sortDirection, setSortDirection] = useState('asc')
   const [selectedIds, setSelectedIds] = useState([])
   const [showDeactivateModal, setShowDeactivateModal] = useState(false)

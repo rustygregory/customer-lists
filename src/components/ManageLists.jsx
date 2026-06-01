@@ -457,24 +457,12 @@ const OverflowIcon = () => (
 
 const SortIcon = ({ field, sortField, sortDirection }) => {
   const isActive = sortField === field
-  if (isActive) {
-    return (
-      <SortIconWrapper>
-        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {sortDirection === 'desc' ? (
-            <path d="M1 1L5 5L9 1" stroke="#2f3941" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          ) : (
-            <path d="M1 5L5 1L9 5" stroke="#2f3941" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          )}
-        </svg>
-      </SortIconWrapper>
-    )
-  }
+  const color = '#68737d'
   return (
     <SortIconWrapper>
       <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M1 4.5L4 1.5L7 4.5" stroke="#68737d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M1 7.5L4 10.5L7 7.5" stroke="#68737d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M1 4.5L4 1.5L7 4.5" stroke={isActive && sortDirection === 'asc' ? '#2f3941' : color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M1 7.5L4 10.5L7 7.5" stroke={isActive && sortDirection === 'desc' ? '#2f3941' : color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     </SortIconWrapper>
   )
